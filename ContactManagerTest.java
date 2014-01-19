@@ -5,7 +5,7 @@ public class ContactManagerTest {
 	private ContactManager diary;
 	private Set<Contacts> contactsGroup;
 	public ContactManagerTest(){
-		diary = new LinkedList();	//Change to ArrayContactManager if decide to implement ContactManager as an array
+		diary = new ContactManager();	
 		contactsGroup = new HashSet<Contacts>(); //Change to TreeSet<Contacts> if the order of the elements is important
 	}
 	
