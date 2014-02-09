@@ -24,13 +24,17 @@ public class MeetingImpl implements Meeting {
 *
 * @return the id of the meeting.
 */
-int getId();
+    public int getId(){
+        return meetingId;
+    }
 /**
 * Return the date of the meeting. 
 *
 * @return the date of the meeting. 
 */
-Calendar getDate();
+    public Calendar getDate(){
+        return scheduledDate;
+    }
 /**
 * Return the details of people that attended the meeting. 
 *
@@ -40,5 +44,7 @@ Calendar getDate();
 *
 * @return the details of people that attended the meeting. 
 */
-Set<Contact> getContacts(); 
+    public Set<Contact> getContacts(){
+        return participants;            //***haven't added any code to guard against empty participants set***
+    }
 }
