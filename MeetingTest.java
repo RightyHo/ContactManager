@@ -1,9 +1,11 @@
 import org.junit.*;
 import static org.junit.Assert.*;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Set;
 
 public class MeetingTest {
-	private Set<Contacts> meetingAttendees;
+	private Set<Contact> meetingAttendees;
 	Calendar date;
 	Meeting myMeeting;
 	int intOutput;
@@ -12,6 +14,8 @@ public class MeetingTest {
 	String strExpected;
 	Calendar dateOutput;
 	Calendar dateExpected;
+    Contact matt;
+    Contact dom;
 
 	@Before
 	public void buildUp(){
@@ -23,10 +27,10 @@ public class MeetingTest {
 
 	@Test
 	public void testsGetId(){
-		date = new Calendar();
+		date = new GregorianCalendar();
 		date.set(2014,10,31);
-		Contact matt = new ContactImpl(8321,"Matt Swinson","Gooner");
-		Contact dom = new ContactImpl(2557,"Dom Leavy","Young Gun");
+		matt = new ContactImpl(8321,"Matt Swinson","Gooner");
+		dom = new ContactImpl(2557,"Dom Leavy","Young Gun");
 		meetingAttendees.add(matt);
 		meetingAttendees.add(dom);
 		myMeeting = new MeetingImpl(411,date,meetingAttendees);
@@ -42,9 +46,9 @@ public class MeetingTest {
 	}
 	@Test
 	public void testsGetContacts(){
-		strOutput = myContact.getNotes();
-		strExpected = "NBA legend";
-		assertEquals(Expected,output);	
+		strOutput = matt.getNotes();
+		strExpected = "Gooner";
+		assertEquals(strExpected,strOutput);
 	}
 	
 }

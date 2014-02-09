@@ -9,7 +9,7 @@ public class ContactManagerTest {
 	int output;
 	
 	public ContactManagerTest(){
-		diary = new ContactManager();	
+		diary = new ContactManagerImpl();
 		contactsGroup = new HashSet<Contacts>(); //Change to TreeSet<Contacts> if the order of the elements is important
 		meetingDate = new Calendar();
 		output = 0;
