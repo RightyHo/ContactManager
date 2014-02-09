@@ -33,7 +33,6 @@ public class MeetingTest {
 		strOutput = "";
 		strExpected = "";
 	}
-
 	@Test
 	public void testsGetId(){
 		intOutput = myMeeting.getId();
@@ -52,5 +51,15 @@ public class MeetingTest {
 		strExpected = "Gooner";
 		assertEquals(strExpected,strOutput);
 	}
-	
+    //test getNotes method from PastMeeting class
+	@Test
+    public void testsGetNotes(){
+        date.set(2014,1,24);
+        PastMeeting coventryGame = new PastMeetingImpl(400,date,meetingAttendees,"Podolski put the game to bed with a brace in the first half");
+        strOutput = coventryGame.getNotes();
+        strExpected = "Podolski put the game to bed with a brace in the first half";
+        assertEquals(strExpected,strOutput);
+    }
 }
+
+
