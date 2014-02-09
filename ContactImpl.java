@@ -22,13 +22,17 @@ public class ContactImpl implements Contact {
 *
 * @return the ID of the contact. 
 */
-int getId();
+    public int getId(){
+        return contactId;
+    }
 /**
 * Returns the name of the contact. 
 *
 * @return the name of the contact. 
 */
-String getName();
+    public String getName(){
+        return contactName;
+    }
 /**
 * Returns our notes about the contact, if any. 
 *
@@ -37,11 +41,15 @@ String getName();
 *
 * @return a string with notes about the contact, maybe empty. 
 */
-String getNotes();
+    public String getNotes(){
+        return contactNotes;            //***haven't added any code to cater for empty string yet***
+    }
 /**
 * Add notes about the contact. 
 *
 * @param note the notes to be added 
 */
-void addNotes(String note); 
+    public void addNotes(String note){
+        contactNotes = note;
+    }
 }

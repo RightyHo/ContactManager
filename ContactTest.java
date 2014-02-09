@@ -2,23 +2,23 @@ import org.junit.*;
 import static org.junit.Assert.*;
 
 public class ContactTest {
-	Contact myContact;
-	int intOutput;
-	int intExpected;
-	String strOutput;
-	String strExpected;
+	private Contact myContact;
+	private int intOutput;
+	private int intExpected;
+	private String strOutput;
+	private String strExpected;
 	
 	@Before
 	public void buildUp(){
-		int intOutput = 0;
-		int intExpected = 0;
-		String strOutput = "";
-		String strExpected = "";
+        myContact = new ContactImpl(984,"Michael Jordan","NBA legend");
+		intOutput = 0;
+		intExpected = 0;
+		strOutput = "";
+		strExpected = "";
 	}
 
 	@Test
 	public void testsGetId(){
-		myContact = new ContactImpl(984,"Michael Jordan","NBA legend");
 		intOutput = myContact.getId();
 		intExpected = 984;
 		assertEquals(intExpected,intOutput);
