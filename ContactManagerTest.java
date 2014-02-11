@@ -14,7 +14,7 @@ public class ContactManagerTest {
 	
 	public ContactManagerTest(){
 		diary = new ContactManagerImpl();
-		contactsGroup = new HashSet<Contact>(); //Change to TreeSet<Contacts> if the order of the elements is important
+		contactsGroup = new HashSet<Contact>();
 		meetingDate = new GregorianCalendar();
 		output = 0;
 	}
