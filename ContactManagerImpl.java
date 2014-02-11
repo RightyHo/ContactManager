@@ -1,18 +1,23 @@
 import java.util.Calendar; 
 import java.util.List; 
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 /**
 * A class to manage your contacts and meetings. 
 * Implements the ContactManager interface using an ArrayList
 */
 public class ContactManagerImpl implements ContactManager {
 	private List<Meeting> meetingSchedule;
+    private Set<Contact> contactSet;
 /**
 * Class constructor initialises the meetingSchedule List using an ArrayList
 * The other alternative was to use a LinkedList structure
 */	
 	public ContactManagerImpl(){
 		meetingSchedule = new ArrayList<Meeting>();
+        contactSet = new HashSet<Contact>();
 	}
 /**
 * Add a new meeting to be held in the future. 
@@ -23,7 +28,9 @@ public class ContactManagerImpl implements ContactManager {
 * @throws IllegalArgumentException if the meeting is set for a time in the past,
 *	of if any contact is unknown / non-existent
 */
-int addFutureMeeting(Set<Contact> contacts, Calendar date);
+    public int addFutureMeeting(Set<Contact> contacts, Calendar date){
+        return 0;
+    }
 /**
 * Returns the PAST meeting with the requested ID, or null if it there is none. 
 *
@@ -31,7 +38,9 @@ int addFutureMeeting(Set<Contact> contacts, Calendar date);
 * @return the meeting with the requested ID, or null if it there is none.
 * @throws IllegalArgumentException if there is a meeting with that ID happening in the future
 */
-PastMeeting getPastMeeting(int id);
+    public PastMeeting getPastMeeting(int id){
+        return null;
+    }
 /**
 * Returns the FUTURE meeting with the requested ID, or null if there is none. 
 *
@@ -39,14 +48,18 @@ PastMeeting getPastMeeting(int id);
 * @return the meeting with the requested ID, or null if it there is none.
 * @throws IllegalArgumentException if there is a meeting with that ID happening in the past 
 */
-FutureMeeting getFutureMeeting(int id);
+    public FutureMeeting getFutureMeeting(int id){
+        return null;
+    }
 /**
 * Returns the meeting with the requested ID, or null if it there is none.
 *
 * @param id the ID for the meeting
 * @return the meeting with the requested ID, or null if it there is none.
 */
-Meeting getMeeting(int id);
+    public Meeting getMeeting(int id){
+        return null;
+    }
 /**
 * Returns the list of future meetings scheduled with this contact. 
 *
@@ -58,7 +71,9 @@ Meeting getMeeting(int id);
 * @return the list of future meeting(s) scheduled with this contact (maybe empty).
 * @throws IllegalArgumentException if the contact does not exist 
 */
-List<Meeting> getFutureMeetingList(Contact contact);
+    public List<Meeting> getFutureMeetingList(Contact contact){
+        return null;
+    }
 /**
 * Returns the list of meetings that are scheduled for, or that took
 * place on, the specified date 
@@ -70,7 +85,9 @@ List<Meeting> getFutureMeetingList(Contact contact);
 * @param date the date
 * @return the list of meetings 
 */
-List<Meeting> getFutureMeetingList(Calendar date);
+    public List<Meeting> getFutureMeetingList(Calendar date){
+        return null;
+    }
 /**
 * Returns the list of past meetings in which this contact has participated. 
 *
@@ -82,7 +99,9 @@ List<Meeting> getFutureMeetingList(Calendar date);
 * @return the list of future meeting(s) scheduled with this contact (maybe empty).
 * @throws IllegalArgumentException if the contact does not exist
 */
-List<PastMeeting> getPastMeetingList(Contact contact);
+    public List<PastMeeting> getPastMeetingList(Contact contact){
+        return null;
+    }
 /**
 * Create a new record for a meeting that took place in the past. 
 *
@@ -93,7 +112,9 @@ List<PastMeeting> getPastMeetingList(Contact contact);
 * empty, or any of the contacts does not exist
 * @throws NullPointerException if any of the arguments is null 
 */
-void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text);
+    public void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text){
+        //do something
+    }
 /**
 * Add notes to a meeting. 
 *
@@ -108,7 +129,9 @@ void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text);
 * @throws IllegalStateException if the meeting is set for a date in the future
 * @throws NullPointerException if the notes are null 
 */
-void addMeetingNotes(int id, String text);
+    public void addMeetingNotes(int id, String text){
+        //do something
+    }
 /**
 * Create a new contact with the specified name and notes. 
 *
@@ -116,7 +139,18 @@ void addMeetingNotes(int id, String text);
 * @param notes notes to be added about the contact.
 * @throws NullPointerException if the name or the notes are null
 */
-void addNewContact(String name, String notes);
+    public void addNewContact(String name, String notes){
+        if(name == null){
+            throw new NullPointerException();
+        } else if(notes == null){
+            throw new NullPointerException();
+        } else {
+            //Assign random contact ID number
+            int contactId = (int) Math.abs(10000*Math.random());
+            Contact newContact = new ContactImpl(contactId,name,notes);
+            contactSet.add(newContact);
+        }
+    }
 /**
 * Returns a list containing the contacts that correspond to the IDs.
 *
@@ -124,7 +158,9 @@ void addNewContact(String name, String notes);
 * @return a list containing the contacts that correspond to the IDs.
 * @throws IllegalArgumentException if any of the IDs does not correspond to a real contact 
 */
-Set<Contact> getContacts(int... ids);
+    public Set<Contact> getContacts(int... ids){
+        return null;
+    }
 /**
 * Returns a list with the contacts whose name contains that string. 
 *
@@ -132,12 +168,53 @@ Set<Contact> getContacts(int... ids);
 * @return a list with the contacts whose name contains that string.
 * @throws NullPointerException if the parameter is null 
 */
-Set<Contact> getContacts(String name);
+    public Set<Contact> getContacts(String name){
+        if(name == null){
+            throw new NullPointerException();
+        } else {
+            Set<Contact> result = new HashSet<Contact>();
+            for(Contact c: result){
+                if(c.getName().equals(name)){
+                    result.add(c);
+                }
+            }
+            return result;
+        }
+    }
 /**
 * Save all data to disk. 
 *
 * This method must be executed when the program is
 * closed and when/if the user requests it. 
 */
-  void flush();
+    public void flush(){
+        //do something
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
