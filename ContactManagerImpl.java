@@ -29,8 +29,32 @@ public class ContactManagerImpl implements ContactManager {
 *	of if any contact is unknown / non-existent
 */
     public int addFutureMeeting(Set<Contact> contacts, Calendar date){
-        return 0;
+        //not sure if its necessary to add the date formatting code?If so, need to add to .before() code
+        //	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Calendar todaysDate = Calendar.getInstance();
+        if(date.before(todaysDate.getTime())){
+            throw new IllegalArgumentException();
+        }
+           if(!contactSet.containsAll(contacts)){
+            throw new IllegalArgumentException();
+        }
+        int newID = (int)(Math.random()*10000);
+        Meeting upComingMeeting = new MeetingImpl(newID,date,contacts);
+        //find the location to insert the meeting in the list - in date order
+        for(int i=0;i<meetingSchedule.size();i++){
+            Meeting checkMeeting = meetingSchedule.get(i);
+            Calendar checkDate = checkMeeting.getDate();  //could put these both on one line?
+            if(checkDate.after(date)){
+                meetingSchedule.add(i,upComingMeeting);
+                return upComingMeeting.getId();		//Could just return newID if this is problematic
+            }
+        }
+        //Append the specified meeting to the end of this list if the new meeting date is after all existing meetings in list
+        meetingSchedule.add(upComingMeeting);
+        return upComingMeeting.getId();		//Could just return newID if this is problematic
     }
+              
+
 /**
 * Returns the PAST meeting with the requested ID, or null if it there is none. 
 *

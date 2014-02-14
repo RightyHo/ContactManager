@@ -35,6 +35,7 @@ public class ContactManagerTest {
 		//test using existing contacts & future date
 		output = diary.addFutureMeeting(contactsGroup,meetingDate);
 		assertTrue(output != 0);
+        System.out.println("The meeting ID is " + String.valueOf(output));
 		//test using existing contacts & past date
 		try{
 			meetingDate.set(1984,9,2);
@@ -55,4 +56,8 @@ public class ContactManagerTest {
             ex.printStackTrace();
 		}
 	}
+    @Test
+    public void testsGetPastMeeting(){
+        
+    }
 }
