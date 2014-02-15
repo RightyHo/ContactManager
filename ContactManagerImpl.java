@@ -65,8 +65,26 @@ public class ContactManagerImpl implements ContactManager {
 * @throws IllegalArgumentException if there is a meeting with that ID happening in the future
 */
     public PastMeeting getPastMeeting(int id){
-        return null;
+        Meeting result = null;
+        Calendar todaysDate = Calendar.getInstance();
+        if(date.before(todaysDate.getTime())){
+            for(int i=0;i<meetingSchedule.size();i++){
+                Meeting auxMeeting = meetingSchedule.get(i);
+                int auxId = auxMeeting.getId();
+                if(auxId == id){
+                    if(auxMeeting.getDate().after(todaysDate.getTime())){
+                        throw new IllegalArgumentException();
+                    } else {
+                        result = auxMeeting;
+                        return result;
+                    }
+                }
+            }
+            
+            return result;
+        }
     }
+
 /**
 * Returns the FUTURE meeting with the requested ID, or null if there is none. 
 *
@@ -122,7 +140,7 @@ public class ContactManagerImpl implements ContactManager {
 * duplicates.
 *
 * @param contact one of the user’s contacts
-* @return the list of future meeting(s) scheduled with this contact (maybe empty).
+* @return Returns the list of past meetings in which this contact has participated (maybe empty).
 * @throws IllegalArgumentException if the contact does not exist
 */
     public List<PastMeeting> getPastMeetingList(Contact contact){
