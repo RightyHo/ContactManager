@@ -4,6 +4,8 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 /**
 * A class to manage your contacts and meetings. 
 * Implements the ContactManager interface using an ArrayList
@@ -30,9 +32,10 @@ public class ContactManagerImpl implements ContactManager {
 */
     public int addFutureMeeting(Set<Contact> contacts, Calendar date){
         //not sure if its necessary to add the date formatting code?If so, need to add to .before() code
-        //	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Calendar todaysDate = Calendar.getInstance();
-        if(date.before(todaysDate.getTime())){
+        System.out.println("The todays date is: " + dateFormat.format(todaysDate.getTime()));
+        if(date.before(todaysDate)){
             throw new IllegalArgumentException();
         }
            if(!contactSet.containsAll(contacts)){
