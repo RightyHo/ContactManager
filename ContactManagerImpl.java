@@ -31,7 +31,6 @@ public class ContactManagerImpl implements ContactManager {
 *	of if any contact is unknown / non-existent
 */
     public int addFutureMeeting(Set<Contact> contacts, Calendar date){
-        //not sure if its necessary to add the date formatting code?If so, need to add to .before() code
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Calendar todaysDate = Calendar.getInstance();
         System.out.println("The todays date is: " + dateFormat.format(todaysDate.getTime()));
@@ -140,7 +139,38 @@ public class ContactManagerImpl implements ContactManager {
 * @throws NullPointerException if any of the arguments is null 
 */
     public void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text){
-        //do something
+//        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        Calendar todaysDate = Calendar.getInstance();
+//        System.out.println("The todays date is: " + dateFormat.format(todaysDate.getTime()));
+        if(date.after(todaysDate)){
+            throw new IllegalArgumentException();
+        }
+        if(!contactSet.containsAll(contacts)){
+            throw new IllegalArgumentException();
+        }
+        if(contacts == null){
+            throw new NullPointerException();
+        }
+        if(date == null){
+            throw new NullPointerException();
+        }
+        if(text == null){
+            throw new NullPointerException();
+        }
+        int newID = (int)(Math.random()*10000);
+        Meeting oldMeeting = new PastMeetingImpl(newID,date,contacts,text);
+        //find the location to insert the meeting in the list - in date order
+        for(int i=0;i<meetingSchedule.size();i++){
+            Meeting checkMeeting = meetingSchedule.get(i);
+            Calendar checkDate = checkMeeting.getDate();  //could put these both on one line?
+            if(checkDate.after(date)){
+                meetingSchedule.add(i,oldMeeting);
+                return;
+            }
+        }
+        //Append the specified meeting to the end of this list if the new meeting date is after all existing meetings in list
+        meetingSchedule.add(oldMeeting);
+        return;
     }
 /**
 * Add notes to a meeting. 
