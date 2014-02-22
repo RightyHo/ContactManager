@@ -161,7 +161,7 @@ public class ContactManagerTest {
 		contactsGroup.addAll(aux);
 		//set past date
 		meetingDate.set(Calendar.YEAR,2013);
-		meetingDate.set(Calendar.MONTH,Calendar.MAY);
+		meetingDate.set(Calendar.MONTH,Calendar.JULY);
 		meetingDate.set(Calendar.DAY_OF_MONTH,1);
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         System.out.println("Date of Football game: " + dateFormat.format(meetingDate.getTime()));
@@ -174,22 +174,20 @@ public class ContactManagerTest {
         } else {
             Contact[] tempArray = auxSet.toArray(new Contact[0]);
             for(int i=0;i<tempArray.length;i++){
-                System.out.println("contents of the Tricky set: " + i + ": " + tempArray[i].getName());
                 searchContact = tempArray[i];
                 System.out.println("contents of the searchContact string: " + searchContact.getName());
             }
         }
         List<PastMeeting> listOutput = diary.getPastMeetingList(searchContact);
-        if(listOutput == null){
+        if(listOutput.isEmpty()){
             System.out.println("Can't find any past meetings with Richard Barker");
         } else {
+            System.out.println("number of meetings with Barks: " + Integer.toString(listOutput.size()));
+            System.out.println("meetings ID Barks: " + Integer.toString(listOutput.get(0).getId()));
+            System.out.println("meetings date Barks: " + dateFormat.format(listOutput.get(0).getDate().getTime()));
             //test first meeting date
             Calendar calOutput = listOutput.get(0).getDate();
-            Calendar calExpected = new GregorianCalendar(2011,07,14);
-            assertEquals(calExpected,calOutput);
-            //test second meeting date
-            calOutput = listOutput.get(1).getDate();
-            calExpected = new GregorianCalendar(2013,05,1);
+            Calendar calExpected = new GregorianCalendar(2013,07,1);
             assertEquals(calExpected,calOutput);
         }
         //test passing a contact with no past meetings
@@ -204,7 +202,7 @@ public class ContactManagerTest {
             }
         }
         listOutput = diary.getPastMeetingList(searchContact);
-        if(listOutput == null){
+        if(listOutput.isEmpty()){
             System.out.println("As expected there are no past meetings with Wade Kelly");
         } else {
             System.out.println("ERROR we have found a past meeting with Wade Kelly");

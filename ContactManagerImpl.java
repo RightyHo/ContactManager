@@ -165,9 +165,9 @@ public class ContactManagerImpl implements ContactManager {
 * @throws NullPointerException if any of the arguments is null 
 */
     public void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text){
-//        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Calendar todaysDate = Calendar.getInstance();
-//        System.out.println("The todays date is: " + dateFormat.format(todaysDate.getTime()));
+        System.out.println("The todays date is: " + dateFormat.format(todaysDate.getTime()));
         if(date.after(todaysDate)){
             throw new IllegalArgumentException();
         }
@@ -272,6 +272,38 @@ public class ContactManagerImpl implements ContactManager {
 */
     public void flush(){
         //do something
+    }
+/**
+* Returns a list of all past meeting ID's
+*
+* @return a list of all past meeting ID's
+*/
+    public List<Integer> getPastMeetingIdList(){
+        List<Integer> result = new ArrayList<Integer>();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        Calendar todaysDate = Calendar.getInstance();
+        for(int i=0;i<meetingSchedule.size();i++){
+            if(meetingSchedule.get(i).getDate().before(todaysDate)){
+                result.add(meetingSchedule.get(i).getId());
+            }
+        }
+        return result;
+    }
+/**
+* Returns a list of all future meeting ID's
+*
+* @return a list of all future meeting ID's
+*/
+    public List<Integer> getFutureMeetingIdList(){
+        List<Integer> result = new ArrayList<Integer>();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        Calendar todaysDate = Calendar.getInstance();
+        for(int i=0;i<meetingSchedule.size();i++){
+            if(meetingSchedule.get(i).getDate().before(todaysDate)){
+                result.add(meetingSchedule.get(i).getId());
+            }
+        }
+        return result;
     }
 }
 
