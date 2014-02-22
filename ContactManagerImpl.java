@@ -65,9 +65,8 @@ public class ContactManagerImpl implements ContactManager {
 * @throws IllegalArgumentException if there is a meeting with that ID happening in the future
 */
     public PastMeeting getPastMeeting(int id){
-        Meeting result = null;
+        PastMeeting result = null;
         Calendar todaysDate = Calendar.getInstance();
-        if(date.before(todaysDate.getTime())){
             for(int i=0;i<meetingSchedule.size();i++){
                 Meeting auxMeeting = meetingSchedule.get(i);
                 int auxId = auxMeeting.getId();
@@ -75,14 +74,12 @@ public class ContactManagerImpl implements ContactManager {
                     if(auxMeeting.getDate().after(todaysDate.getTime())){
                         throw new IllegalArgumentException();
                     } else {
-                        result = auxMeeting;
+                        result = (PastMeeting) auxMeeting;
                         return result;
                     }
                 }
             }
-            
             return result;
-        }
     }
 
 /**
@@ -119,8 +116,7 @@ public class ContactManagerImpl implements ContactManager {
         return null;
     }
 /**
-* Returns the list of meetings that are scheduled for, or that took
-* place on, the specified date 
+* Returns the list of meetings that are scheduled for the specified date
 *
 * If there are none, the returned list will be empty. Otherwise,
 * the list will be chronologically sorted and will not contain any 
@@ -144,7 +140,19 @@ public class ContactManagerImpl implements ContactManager {
 * @throws IllegalArgumentException if the contact does not exist
 */
     public List<PastMeeting> getPastMeetingList(Contact contact){
-        return null;
+        List<PastMeeting> result = new ArrayList<PastMeeting>();
+        if(!contactSet.contains(contact)){
+            throw new IllegalArgumentException();
+        } else {
+            for(int i=0;i<meetingSchedule.size();i++){
+                if(meetingSchedule.get(i).getContacts().contains(contact)){
+                    if(!result.contains(meetingSchedule.get(i))){
+                        result.add((PastMeeting) meetingSchedule.get(i));
+                    }
+                }
+            }
+        return result;
+        }
     }
 /**
 * Create a new record for a meeting that took place in the past. 
@@ -248,7 +256,7 @@ public class ContactManagerImpl implements ContactManager {
             throw new NullPointerException();
         } else {
             Set<Contact> result = new HashSet<Contact>();
-            for(Contact c: result){
+            for(Contact c: contactSet){
                 if(c.getName().equals(name)){
                     result.add(c);
                 }

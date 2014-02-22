@@ -2,6 +2,8 @@ import org.junit.*;
 import static org.junit.Assert.*;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 import java.text.SimpleDateFormat;
@@ -151,7 +153,7 @@ public class ContactManagerTest {
     public void testsGetPastMeetingList(){
         //test that method returns a list of meetings when a contact with a past meeting is passed
         //check that the returned list is in chronological order & doesn't contain duplicates
-        Contact searchContact;
+        Contact searchContact = null;
         //add new contacts
 		diary.addNewContact("Richard Barker","Neighbour");
         //add contacts to contact set
@@ -170,13 +172,15 @@ public class ContactManagerTest {
         if(auxSet.isEmpty()){
             System.out.println("get contacts function returned an empty set for Richard Barker");
         } else {
-            for(Iterator<Contact> it = auxSet.iterator(); it.hasNext(); ){
-                Contact auxContact = it.next();
-                searchContact = auxContact;
+            Contact[] tempArray = auxSet.toArray(new Contact[0]);
+            for(int i=0;i<tempArray.length;i++){
+                System.out.println("contents of the Tricky set: " + i + ": " + tempArray[i].getName());
+                searchContact = tempArray[i];
+                System.out.println("contents of the searchContact string: " + searchContact.getName());
             }
         }
         List<PastMeeting> listOutput = diary.getPastMeetingList(searchContact);
-        if(listOutput.isEmpty()){
+        if(listOutput == null){
             System.out.println("Can't find any past meetings with Richard Barker");
         } else {
             //test first meeting date
@@ -200,7 +204,7 @@ public class ContactManagerTest {
             }
         }
         listOutput = diary.getPastMeetingList(searchContact);
-        if(listOutput.isEmpty()){
+        if(listOutput == null){
             System.out.println("As expected there are no past meetings with Wade Kelly");
         } else {
             System.out.println("ERROR we have found a past meeting with Wade Kelly");
@@ -214,6 +218,7 @@ public class ContactManagerTest {
             ex.printStackTrace();
         }
     }
+    
 }
 
 
