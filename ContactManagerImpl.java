@@ -299,7 +299,7 @@ public class ContactManagerImpl implements ContactManager {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Calendar todaysDate = Calendar.getInstance();
         for(int i=0;i<meetingSchedule.size();i++){
-            if(meetingSchedule.get(i).getDate().before(todaysDate)){
+            if(meetingSchedule.get(i).getDate().after(todaysDate)){
                 result.add(meetingSchedule.get(i).getId());
             }
         }
