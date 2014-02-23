@@ -32,6 +32,9 @@ public class ContactManagerTest {
         diary.addNewContact("Richard Barker","Neighbour");
 		diary.addNewContact("Kate Crowne","Family friend");
 		diary.addNewContact("Laura Edwards","Girl friend");
+        diary.addNewContact("Willem Botha","Squash Guru");
+		diary.addNewContact("Oli Callington","Footie fiend");
+		diary.addNewContact("Tondi Busse","DJ");
     }
 	@Test
 	public void testsAddFutureMeeting(){
@@ -65,7 +68,7 @@ public class ContactManagerTest {
 			output = diary.addFutureMeeting(contactsGroup,meetingDate);
 		} catch(IllegalArgumentException ex){
 			System.out.println("Error you entered a date in the past!");
-            ex.printStackTrace();
+//            ex.printStackTrace();
 		}
 		//test using non-existant contacts & future date
 		try{
@@ -76,16 +79,78 @@ public class ContactManagerTest {
 			output = diary.addFutureMeeting(mysteryList,meetingDate);
 		} catch(IllegalArgumentException ex){
 			System.out.println("Error you entered a non-existant contact!");
-            ex.printStackTrace();
+//            ex.printStackTrace();
 		}
 	}
     @Test
     public void testsGetPastMeeting(){
+        //add new past meeting
+        aux = diary.getContacts("Willem Botha");
+		contactsGroup.addAll(aux);
+        aux = diary.getContacts("Oli Callington");
+		contactsGroup.addAll(aux);
+        aux = diary.getContacts("Tondi Busse");
+		contactsGroup.addAll(aux);
+		//set past date
+		meetingDate.set(Calendar.YEAR,2013);
+		meetingDate.set(Calendar.MONTH,Calendar.JANUARY);
+		meetingDate.set(Calendar.DAY_OF_MONTH,28);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        System.out.println("Date of Savoy Awards: " + dateFormat.format(meetingDate.getTime()));
+        //test using existing contacts & past date
+		diary.addNewPastMeeting(contactsGroup,meetingDate,"Savoy Equity Awards Dinner");
         //test passing valid past meeting id
-        
+        List<Integer> ids = diary.getPastMeetingIdList();
+        int expectedId = ids.get(0);
+        PastMeeting outputMeeting = diary.getPastMeeting(ids.get(0));
+        output = outputMeeting.getId();
+        assertEquals(expectedId,output);
         //test passing a valid meeting id for a meeting in the future
+            //add new future meeting
         
         //test passing an invalid meeting id
+        outputMeeting = diary.getPastMeeting(9999);
+        assertNull(outputMeeting);
+    }
+    @Test
+    public void testsGetFutureMeeting(){
+        //add new future meeting
+        aux = diary.getContacts("Jamie O'Regan");
+		contactsGroup.addAll(aux);
+        aux = diary.getContacts("Willem Botha");
+		contactsGroup.addAll(aux);
+        aux = diary.getContacts("Richard Barker");
+		contactsGroup.addAll(aux);
+		meetingDate.set(Calendar.YEAR,2014);
+		meetingDate.set(Calendar.MONTH,Calendar.JUNE);
+		meetingDate.set(Calendar.DAY_OF_MONTH,21);
+        int expectedId = diary.addFutureMeeting(contactsGroup,meetingDate);
+        
+        //test with an valid ID and date
+        FutureMeeting meetingOutput = diary.getFutureMeeting(expectedId);
+        output = meetingOutput.getId();
+        assertEquals(expectedId,output);
+        //test with an invalid ID
+        meetingOutput = diary.getFutureMeeting(1111);
+        assertNull(meetingOutput);
+        
+        //add new past meeting
+        aux = diary.getContacts("Laura Edwards");
+		contactsGroup.addAll(aux);
+        aux = diary.getContacts("Willem Botha");
+		contactsGroup.addAll(aux);
+		meetingDate.set(Calendar.YEAR,2014);
+		meetingDate.set(Calendar.MONTH,Calendar.FEBRUARY);
+		meetingDate.set(Calendar.DAY_OF_MONTH,01);
+        diary.addNewPastMeeting(contactsGroup,meetingDate,"Dry January fall off wagon party");
+        List<Integer> pastMeetingIds = diary.getPastMeetingIdList();
+        int pastId = pastMeetingIds.get(0);
+        //test with the ID of a meeting that happened in the past
+        try{
+            diary.getFutureMeeting(pastId);
+        } catch (IllegalArgumentException ex){
+            System.out.println("Error the ID of a meeting that you searched on happened in the past!");
+        }
     }
     @Test
     public void testsAddNewPastMeeting(){
@@ -119,7 +184,7 @@ public class ContactManagerTest {
 			diary.addNewPastMeeting(contactsGroup,meetingDate,"Laura will be 31");
 		} catch(IllegalArgumentException ex){
 			System.out.println("Error you entered a date in the future!");
-            ex.printStackTrace();
+//            ex.printStackTrace();
 		}
 		//test using non-existant contacts & past date
 		try{
@@ -130,7 +195,7 @@ public class ContactManagerTest {
 			diary.addNewPastMeeting(mysteryList,meetingDate,"Lets face it this never happened");
 		} catch(IllegalArgumentException ex){
 			System.out.println("Error you entered a non-existant contact!");
-            ex.printStackTrace();
+//            ex.printStackTrace();
 		}
         //test leaving one of the arguments null
         try{
@@ -138,14 +203,14 @@ public class ContactManagerTest {
             diary.addNewPastMeeting(contactsGroup,meetingDate,nullString);
         } catch(NullPointerException ex){
             System.out.println("Error the meeting notes string you entered was null!");
-            ex.printStackTrace();
+//            ex.printStackTrace();
         }
         try{
             meetingDate = null;
             diary.addNewPastMeeting(contactsGroup,meetingDate,"meeting date is null btw");
         } catch(NullPointerException ex){
             System.out.println("Error the meeting date you entered was null!");
-            ex.printStackTrace();
+//            ex.printStackTrace();
         }
         try{
             contactsGroup = null;
@@ -153,7 +218,7 @@ public class ContactManagerTest {
             diary.addNewPastMeeting(contactsGroup,meetingDate,"contactsGroup is null btw");
         } catch(NullPointerException ex){
             System.out.println("Error the contacts group you entered was null!");
-            ex.printStackTrace();
+//            ex.printStackTrace();
         }
     }
     @Test
@@ -203,7 +268,7 @@ public class ContactManagerTest {
         }
         //test passing a contact with no past meetings
         //get contact Wade Kelly - who only has a future meeting
-        searchContact = "";
+        searchContact = null;
         auxSet = diary.getContacts("Wade Kelly");
         if(auxSet.isEmpty()){
             System.out.println("get contacts function returned an empty set for Wade Kelly");
@@ -227,7 +292,7 @@ public class ContactManagerTest {
             listOutput = diary.getPastMeetingList(nonPerson);
         } catch (IllegalArgumentException ex){
             System.out.println("Error the contact you entered doesn't exist!");
-            ex.printStackTrace();
+//            ex.printStackTrace();
         }
     }
     

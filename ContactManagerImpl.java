@@ -90,7 +90,21 @@ public class ContactManagerImpl implements ContactManager {
 * @throws IllegalArgumentException if there is a meeting with that ID happening in the past 
 */
     public FutureMeeting getFutureMeeting(int id){
-        return null;
+        FutureMeeting result = null;
+        Calendar todaysDate = Calendar.getInstance();
+        for(int i=0;i<meetingSchedule.size();i++){
+            Meeting auxMeeting = meetingSchedule.get(i);
+            int auxId = auxMeeting.getId();
+            if(auxId == id){
+                if(auxMeeting.getDate().before(todaysDate.getTime())){
+                    throw new IllegalArgumentException();
+                } else {
+                    result = (FutureMeeting) auxMeeting;
+                    return result;
+                }
+            }
+        }
+        return result;
     }
 /**
 * Returns the meeting with the requested ID, or null if it there is none.
