@@ -99,8 +99,13 @@ public class ContactManagerImpl implements ContactManager {
                 if(auxMeeting.getDate().before(todaysDate.getTime())){
                     throw new IllegalArgumentException();
                 } else {
-                    result = (FutureMeeting) auxMeeting;
-                    return result;
+//                    System.out.println(auxMeeting.class);
+                    if(auxMeeting instanceof FutureMeeting){
+                        result = (FutureMeeting) auxMeeting;
+                        return result;
+                    } else {
+                        throw new RuntimeException("auxMeeting MUST BE a FutureMeeting");
+                    }
                 }
             }
         }

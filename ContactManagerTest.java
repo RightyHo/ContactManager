@@ -3,6 +3,7 @@ import static org.junit.Assert.*;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
@@ -10,49 +11,46 @@ import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 
 public class ContactManagerTest {
-	private ContactManager diary;
-	private Set<Contact> contactsGroup;
-	private Calendar meetingDate; 
-	private int output;
+    private ContactManager diary;
+    private List<Integer> pastMeetIds;
+    private List<Integer> futMeetIds;
+    private Set<Contact> contactsGroup;
+    private Calendar meetingDate;
+    private int output;
     private Set<Contact> aux;
-	
-	public ContactManagerTest(){
-		diary = new ContactManagerImpl();
-	}
+    
     @Before
     public void buildUp(){
+        //add other specific output assert variables?
+        output = 0;
+        
+        diary = new ContactManagerImpl();
+        pastMeetIds = new ArrayList<Integer>();
+        futMeetIds = new ArrayList<Integer>();
         contactsGroup = new HashSet<Contact>();
         aux = new HashSet<Contact>();
-		meetingDate = new GregorianCalendar();
-		output = 0;
-        //add new contacts
-		diary.addNewContact("Jamie O'Regan","Best buddy");
-		diary.addNewContact("Travis Wallach","MC");
-		diary.addNewContact("Wade Kelly","Groomsman");
-        diary.addNewContact("Richard Barker","Neighbour");
-		diary.addNewContact("Kate Crowne","Family friend");
-		diary.addNewContact("Laura Edwards","Girl friend");
-        diary.addNewContact("Willem Botha","Squash Guru");
-		diary.addNewContact("Oli Callington","Footie fiend");
-		diary.addNewContact("Tondi Busse","DJ");
+        meetingDate = new GregorianCalendar();
+        setUpContacts();
+        setUpPastMeetings();
+        setUpFutureMeetings();
+        
+        contactsGroup.clear();
+        aux.clear();
     }
+    
 	@Test
 	public void testsAddFutureMeeting(){
-        //add new contacts
-//		diary.addNewContact("Jamie O'Regan","Best buddy");
-//		diary.addNewContact("Travis Wallach","MC");
-//		diary.addNewContact("Wade Kelly","Groomsman");
         //add contacts to contact set
+        aux = diary.getContacts("Laura Edwards");
+		contactsGroup.addAll(aux);
         aux = diary.getContacts("Jamie O'Regan");
 		contactsGroup.addAll(aux);
-        aux = diary.getContacts("Travis Wallach");
-		contactsGroup.addAll(aux);
-        aux = diary.getContacts("Wade Kelly");
+        aux = diary.getContacts("Nicky Ho");
 		contactsGroup.addAll(aux);
 		//set future date
 		meetingDate.set(Calendar.YEAR,2014);
-		meetingDate.set(Calendar.MONTH,Calendar.OCTOBER);
-		meetingDate.set(Calendar.DAY_OF_MONTH,31);
+		meetingDate.set(Calendar.MONTH,Calendar.JUNE);
+		meetingDate.set(Calendar.DAY_OF_MONTH,28);
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         System.out.println("Future date for meeting: " + dateFormat.format(meetingDate.getTime()));
         //test using existing contacts & future date
@@ -67,7 +65,7 @@ public class ContactManagerTest {
             System.out.println("Past date for meeting: " + dateFormat.format(meetingDate.getTime()));
 			output = diary.addFutureMeeting(contactsGroup,meetingDate);
 		} catch(IllegalArgumentException ex){
-			System.out.println("Error you entered a date in the past!");
+			System.out.println("TEST PASSED:  Error you entered a date in the past!");
 //            ex.printStackTrace();
 		}
 		//test using non-existant contacts & future date
@@ -78,78 +76,44 @@ public class ContactManagerTest {
 			meetingDate.set(2022,06,28);
 			output = diary.addFutureMeeting(mysteryList,meetingDate);
 		} catch(IllegalArgumentException ex){
-			System.out.println("Error you entered a non-existant contact!");
+			System.out.println("TEST PASSED:  Error you entered a non-existant contact!");
 //            ex.printStackTrace();
 		}
 	}
     @Test
     public void testsGetPastMeeting(){
-        //add new past meeting
-        aux = diary.getContacts("Willem Botha");
-		contactsGroup.addAll(aux);
-        aux = diary.getContacts("Oli Callington");
-		contactsGroup.addAll(aux);
-        aux = diary.getContacts("Tondi Busse");
-		contactsGroup.addAll(aux);
-		//set past date
-		meetingDate.set(Calendar.YEAR,2013);
-		meetingDate.set(Calendar.MONTH,Calendar.JANUARY);
-		meetingDate.set(Calendar.DAY_OF_MONTH,28);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-        System.out.println("Date of Savoy Awards: " + dateFormat.format(meetingDate.getTime()));
-        //test using existing contacts & past date
-		diary.addNewPastMeeting(contactsGroup,meetingDate,"Savoy Equity Awards Dinner");
         //test passing valid past meeting id
-        List<Integer> ids = diary.getPastMeetingIdList();
-        int expectedId = ids.get(0);
-        PastMeeting outputMeeting = diary.getPastMeeting(ids.get(0));
+        int expectedId = pastMeetIds.get(0);
+        PastMeeting outputMeeting = diary.getPastMeeting(pastMeetIds.get(0));
         output = outputMeeting.getId();
         assertEquals(expectedId,output);
         //test passing a valid meeting id for a meeting in the future
-            //add new future meeting
-        
+        try {
+            expectedId = futMeetIds.get(0);
+            outputMeeting = diary.getPastMeeting(futMeetIds.get(0));
+            output = outputMeeting.getId();
+        } catch(IllegalArgumentException ex){
+            System.out.println("TEST PASSED:  Error you entered a FUTURE meeting ID for getPastMeeting");
+        }
         //test passing an invalid meeting id
         outputMeeting = diary.getPastMeeting(9999);
         assertNull(outputMeeting);
     }
     @Test
     public void testsGetFutureMeeting(){
-        //add new future meeting
-        aux = diary.getContacts("Jamie O'Regan");
-		contactsGroup.addAll(aux);
-        aux = diary.getContacts("Willem Botha");
-		contactsGroup.addAll(aux);
-        aux = diary.getContacts("Richard Barker");
-		contactsGroup.addAll(aux);
-		meetingDate.set(Calendar.YEAR,2014);
-		meetingDate.set(Calendar.MONTH,Calendar.JUNE);
-		meetingDate.set(Calendar.DAY_OF_MONTH,21);
-        int expectedId = diary.addFutureMeeting(contactsGroup,meetingDate);
-        
         //test with an valid ID and date
-        FutureMeeting meetingOutput = diary.getFutureMeeting(expectedId);
+        int expectedId = futMeetIds.get(0);
+        FutureMeeting meetingOutput = diary.getFutureMeeting(futMeetIds.get(0));
         output = meetingOutput.getId();
         assertEquals(expectedId,output);
         //test with an invalid ID
         meetingOutput = diary.getFutureMeeting(1111);
         assertNull(meetingOutput);
-        
-        //add new past meeting
-        aux = diary.getContacts("Laura Edwards");
-		contactsGroup.addAll(aux);
-        aux = diary.getContacts("Willem Botha");
-		contactsGroup.addAll(aux);
-		meetingDate.set(Calendar.YEAR,2014);
-		meetingDate.set(Calendar.MONTH,Calendar.FEBRUARY);
-		meetingDate.set(Calendar.DAY_OF_MONTH,01);
-        diary.addNewPastMeeting(contactsGroup,meetingDate,"Dry January fall off wagon party");
-        List<Integer> pastMeetingIds = diary.getPastMeetingIdList();
-        int pastId = pastMeetingIds.get(0);
         //test with the ID of a meeting that happened in the past
         try{
-            diary.getFutureMeeting(pastId);
+            diary.getFutureMeeting(pastMeetIds.get(1));
         } catch (IllegalArgumentException ex){
-            System.out.println("Error the ID of a meeting that you searched on happened in the past!");
+            System.out.println("TEST PASSED: Error the ID of a meeting that you searched on happened in the past!");
         }
     }
     @Test
@@ -295,7 +259,151 @@ public class ContactManagerTest {
 //            ex.printStackTrace();
         }
     }
-    
+    private void setUpContacts(){
+        //add new contacts to the diary
+        diary.addNewContact("Jamie O'Regan","Best buddy");
+        diary.addNewContact("Travis Wallach","MC");
+        diary.addNewContact("Wade Kelly","Groomsman");
+        diary.addNewContact("Richard Barker","Neighbour");
+        diary.addNewContact("Kate Crowne","Family friend");
+        diary.addNewContact("Laura Edwards","Girl friend");
+        diary.addNewContact("Willem Botha","Squash Guru");
+        diary.addNewContact("Oli Callington","Footie fiend");
+        diary.addNewContact("James Gill","Pedal Juice Partner");
+        diary.addNewContact("James McLeod","Law Consultant");
+        diary.addNewContact("Nicky Ho","Interior Designer");
+        diary.addNewContact("Philippa Ho","Dr");
+        diary.addNewContact("Matthew Swinson","Jacky boy fan club");
+        diary.addNewContact("Dominic Leavy","B52 bomber");
+    }
+    private void setUpPastMeetings(){
+        //build past meeting 1
+        contactsGroup.clear();
+        aux.clear();
+        //set contact group
+        aux = diary.getContacts("Willem Botha");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Oli Callington");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Tondi Busse");
+        contactsGroup.addAll(aux);
+        //set past date
+        meetingDate.set(Calendar.YEAR,2013);
+        meetingDate.set(Calendar.MONTH,Calendar.JANUARY);
+        meetingDate.set(Calendar.DAY_OF_MONTH,28);
+        //set past meeting 1;
+        diary.addNewPastMeeting(contactsGroup,meetingDate,"Savoy Equity Awards Dinner");
+        
+        //build past meeting 2
+        contactsGroup.clear();
+        aux.clear();
+        //set contact group
+        aux = diary.getContacts("Willem Botha");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Laura Edwards");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Oli Callington");
+        contactsGroup.addAll(aux);
+        //set past date
+        meetingDate.set(Calendar.YEAR,2014);
+        meetingDate.set(Calendar.MONTH,Calendar.FEBRUARY);
+        meetingDate.set(Calendar.DAY_OF_MONTH,1);
+        //set past meeting 2
+        diary.addNewPastMeeting(contactsGroup,meetingDate,"Dry January fall off wagon party");
+        
+        //build past meeting 3
+        contactsGroup.clear();
+        aux.clear();
+        //set contact group
+        aux = diary.getContacts("Richard Barker");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Kate Crowne");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Laura Edwards");
+        contactsGroup.addAll(aux);
+        //set past date
+        meetingDate.set(Calendar.YEAR,2011);
+        meetingDate.set(Calendar.MONTH,Calendar.JULY);
+        meetingDate.set(Calendar.DAY_OF_MONTH,14);
+        //set past meeting 3;
+        diary.addNewPastMeeting(contactsGroup,meetingDate,"Summer trip to the beach in 2011");
+        
+        //build past meeting 4
+        contactsGroup.clear();
+        aux.clear();
+        //set contact group
+        aux = diary.getContacts("Richard Barker");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Matthew Swinson");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Dominic Leavy");
+        contactsGroup.addAll(aux);
+        //set past date
+        meetingDate.set(Calendar.YEAR,2013);
+        meetingDate.set(Calendar.MONTH,Calendar.APRIL);
+        meetingDate.set(Calendar.DAY_OF_MONTH,11);
+        //set past meeting 4;
+        diary.addNewPastMeeting(contactsGroup,meetingDate,"Watched Football");
+        
+        //add new past meetings to the pMeetIds list - could add this separately in the buildUp method?
+        pastMeetIds = diary.getPastMeetingIdList();
+        
+    }
+    private void setUpFutureMeetings(){
+        //build future meeting 1
+        contactsGroup.clear();
+        aux.clear();
+        //set contact group
+        aux = diary.getContacts("Jamie O'Regan");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Travis Wallach");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Wade Kelly");
+        contactsGroup.addAll(aux);
+        //set future date
+        meetingDate.set(Calendar.YEAR,2014);
+        meetingDate.set(Calendar.MONTH,Calendar.OCTOBER);
+        meetingDate.set(Calendar.DAY_OF_MONTH,31);
+        //set future meeting 1;
+        int id = diary.addFutureMeeting(contactsGroup,meetingDate);
+        futMeetIds.add(id);
+        
+        //build future meeting 2
+        contactsGroup.clear();
+        aux.clear();
+        //set contact group
+        aux = diary.getContacts("James Gill");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("James McLeod");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Oli Callington");
+        contactsGroup.addAll(aux);
+        //set future date
+        meetingDate.set(Calendar.YEAR,2014);
+        meetingDate.set(Calendar.MONTH,Calendar.JUNE);
+        meetingDate.set(Calendar.DAY_OF_MONTH,21);
+        //set future meeting 2;
+        id = diary.addFutureMeeting(contactsGroup,meetingDate);
+        futMeetIds.add(id);
+        
+        //build future meeting 3
+        contactsGroup.clear();
+        aux.clear();
+        //set contact group
+        aux = diary.getContacts("Nicky Ho");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Philippa Ho");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Laura Edwards");
+        contactsGroup.addAll(aux);
+        //set future date
+        meetingDate.set(Calendar.YEAR,2015);
+        meetingDate.set(Calendar.MONTH,Calendar.SEPTEMBER);
+        meetingDate.set(Calendar.DAY_OF_MONTH,2);
+        //set future meeting 3;
+        id = diary.addFutureMeeting(contactsGroup,meetingDate);
+        futMeetIds.add(id);
+    }
 }
 
 
