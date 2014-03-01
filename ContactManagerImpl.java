@@ -198,9 +198,9 @@ public class ContactManagerImpl implements ContactManager {
 * @throws NullPointerException if any of the arguments is null 
 */
     public void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text){
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+//        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Calendar todaysDate = Calendar.getInstance();
-        System.out.println("The todays date is: " + dateFormat.format(todaysDate.getTime()));
+//        System.out.println("The todays date is: " + dateFormat.format(todaysDate.getTime()));
         if(date.after(todaysDate)){
             throw new IllegalArgumentException();
         }

@@ -16,13 +16,19 @@ public class ContactManagerTest {
     private List<Integer> futMeetIds;
     private Set<Contact> contactsGroup;
     private Calendar meetingDate;
-    private int output;
     private Set<Contact> aux;
+    private int output;
+    private int expected;
+    private String strOutput;
+    private String strExpected;
     
     @Before
     public void buildUp(){
         //add other specific output assert variables?
         output = 0;
+        expected = 0;
+        strOutput = "";
+        strExpected = "";
         
         diary = new ContactManagerImpl();
         pastMeetIds = new ArrayList<Integer>();
@@ -121,71 +127,90 @@ public class ContactManagerTest {
     }
     @Test
     public void testsAddNewPastMeeting(){
-        //add new contacts
-//		diary.addNewContact("Richard Barker","Neighbour");
-//		diary.addNewContact("Kate Crowne","Family friend");
-//		diary.addNewContact("Laura Edwards","Girl friend");
+        System.out.println("number of past meetings in diary before adding new one: " + pastMeetIds.size());
+        System.out.println("number of future meetings in diary before adding new one: " + futMeetIds.size());
         //add contacts to contact set
-        aux = diary.getContacts("Richard Barker");
-		contactsGroup.addAll(aux);
-        aux = diary.getContacts("Kate Crowne");
-		contactsGroup.addAll(aux);
+        aux = diary.getContacts("Wade Kelly");
+        contactsGroup.addAll(aux);
         aux = diary.getContacts("Laura Edwards");
-		contactsGroup.addAll(aux);
-		//set past date
-		meetingDate.set(Calendar.YEAR,2011);
-		meetingDate.set(Calendar.MONTH,Calendar.JULY);
-		meetingDate.set(Calendar.DAY_OF_MONTH,14);
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Travis Wallach");
+        contactsGroup.addAll(aux);
+        //set past date
+        meetingDate.set(Calendar.YEAR,2012);
+        meetingDate.set(Calendar.MONTH,Calendar.JANUARY);
+        meetingDate.set(Calendar.DAY_OF_MONTH,31);
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-        System.out.println("Date of Past Croyde Trip: " + dateFormat.format(meetingDate.getTime()));
+        String description = "Engagement Dinner in Sydney";
+        System.out.println(description + ": " + dateFormat.format(meetingDate.getTime()));
         //test using existing contacts & past date
-		diary.addNewPastMeeting(contactsGroup,meetingDate,"Summer trip to the beach in 2011");
-		//add some test code to make sure that this past meeting was added correctly
-        
-		//test using existing contacts & future date
-		try{
+        diary.addNewPastMeeting(contactsGroup,meetingDate,description);
+        //add new past meeting ID to pastMeetIds list
+        List<Integer> allPastMeets = diary.getPastMeetingIdList();
+        pastMeetIds.add(allPastMeets.get(allPastMeets.size()-1));
+        System.out.println("number of past meetings in diary AFTER adding new one: " + pastMeetIds.size());
+        System.out.println("number of future meetings in diary AFTER adding new one: " + futMeetIds.size());
+        //test that past meeting was added correctly
+        strOutput = "";
+        strExpected = description;
+        for(int i=0;i<pastMeetIds.size();i++){
+            try{
+                int id = pastMeetIds.get(i);
+                PastMeeting pm = diary.getPastMeeting(id);
+                String s = pm.getNotes();
+                System.out.println(s);
+                if(s.equals(description)){
+                    strOutput = s;
+                }
+            } catch (NullPointerException ex){
+                System.out.println("Error - somethings gone wrong, we've got a null pointer");
+            }
+        }
+        assertEquals(strExpected,strOutput);
+        //test using existing contacts & future date
+        try{
             meetingDate.set(Calendar.YEAR,2015);
-            meetingDate.set(Calendar.MONTH,Calendar.SEPTEMBER);
-            meetingDate.set(Calendar.DAY_OF_MONTH,2);
-            System.out.println("Lauras birthday next year: " + dateFormat.format(meetingDate.getTime()));
-			diary.addNewPastMeeting(contactsGroup,meetingDate,"Laura will be 31");
-		} catch(IllegalArgumentException ex){
-			System.out.println("Error you entered a date in the future!");
-//            ex.printStackTrace();
-		}
-		//test using non-existant contacts & past date
-		try{
-			Contact mysteryPerson = new ContactImpl(2346,"Joe Blogs","made up person not in contacts");
-			Set<Contact> mysteryList = new HashSet<Contact>();
-			mysteryList.add(mysteryPerson);
-			meetingDate.set(2009,06,28);
-			diary.addNewPastMeeting(mysteryList,meetingDate,"Lets face it this never happened");
-		} catch(IllegalArgumentException ex){
-			System.out.println("Error you entered a non-existant contact!");
-//            ex.printStackTrace();
-		}
+            meetingDate.set(Calendar.MONTH,Calendar.JANUARY);
+            meetingDate.set(Calendar.DAY_OF_MONTH,14);
+            System.out.println("Mums birthday next year: " + dateFormat.format(meetingDate.getTime()));
+            diary.addNewPastMeeting(contactsGroup,meetingDate,"Mums birthday next year");
+        } catch(IllegalArgumentException ex){
+            System.out.println("TEST PASSED: Error you entered a date in the future!");
+//          ex.printStackTrace();
+        }
+        //test using non-existant contacts & past date
+        try{
+            Contact mysteryPerson = new ContactImpl(2346,"Joe Blogs","made up person not in contacts");
+            Set<Contact> mysteryList = new HashSet<Contact>();
+            mysteryList.add(mysteryPerson);
+            meetingDate.set(2009,06,28);
+            diary.addNewPastMeeting(mysteryList,meetingDate,"Lets face it this never happened");
+        } catch(IllegalArgumentException ex){
+            System.out.println("TEST PASSED: Error you entered a non-existant contact!");
+//          ex.printStackTrace();
+        }
         //test leaving one of the arguments null
         try{
             String nullString = null;
             diary.addNewPastMeeting(contactsGroup,meetingDate,nullString);
         } catch(NullPointerException ex){
-            System.out.println("Error the meeting notes string you entered was null!");
-//            ex.printStackTrace();
+            System.out.println("TEST PASSED: Error the meeting notes string you entered was null!");
+//  	    ex.printStackTrace();
         }
         try{
             meetingDate = null;
             diary.addNewPastMeeting(contactsGroup,meetingDate,"meeting date is null btw");
         } catch(NullPointerException ex){
-            System.out.println("Error the meeting date you entered was null!");
-//            ex.printStackTrace();
+            System.out.println("TEST PASSED: Error the meeting date you entered was null!");
+//          ex.printStackTrace();
         }
         try{
             contactsGroup = null;
             meetingDate.set(2011,03,8);
             diary.addNewPastMeeting(contactsGroup,meetingDate,"contactsGroup is null btw");
         } catch(NullPointerException ex){
-            System.out.println("Error the contacts group you entered was null!");
-//            ex.printStackTrace();
+            System.out.println("TEST PASSED: Error the contacts group you entered was null!");
+//  	    ex.printStackTrace();
         }
     }
     @Test
@@ -367,7 +392,7 @@ public class ContactManagerTest {
         meetingDate.set(Calendar.YEAR,2014);
         meetingDate.set(Calendar.MONTH,Calendar.OCTOBER);
         meetingDate.set(Calendar.DAY_OF_MONTH,31);
-        //set future meeting 1;
+        //set future meeting 1
         int id = diary.addFutureMeeting(contactsGroup,meetingDate);
         futMeetIds.add(id);
         
@@ -385,7 +410,7 @@ public class ContactManagerTest {
         meetingDate.set(Calendar.YEAR,2014);
         meetingDate.set(Calendar.MONTH,Calendar.JUNE);
         meetingDate.set(Calendar.DAY_OF_MONTH,21);
-        //set future meeting 2;
+        //set future meeting 2
         id = diary.addFutureMeeting(contactsGroup,meetingDate);
         futMeetIds.add(id);
         
@@ -403,7 +428,25 @@ public class ContactManagerTest {
         meetingDate.set(Calendar.YEAR,2015);
         meetingDate.set(Calendar.MONTH,Calendar.SEPTEMBER);
         meetingDate.set(Calendar.DAY_OF_MONTH,2);
-        //set future meeting 3;
+        //set future meeting 3
+        id = diary.addFutureMeeting(contactsGroup,meetingDate);
+        futMeetIds.add(id);
+        
+        //build future meeting 4
+        contactsGroup.clear();
+        aux.clear();
+        //set contact group
+        aux = diary.getContacts("Philippa Ho");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Matthew Swinson");
+        contactsGroup.addAll(aux);
+        aux = diary.getContacts("Willem Botha");
+        contactsGroup.addAll(aux);
+        //set future date
+        meetingDate.set(Calendar.YEAR,2016);
+        meetingDate.set(Calendar.MONTH,Calendar.FEBRUARY);
+        meetingDate.set(Calendar.DAY_OF_MONTH,4);
+        //set future meeting 4
         id = diary.addFutureMeeting(contactsGroup,meetingDate);
         futMeetIds.add(id);
     }
