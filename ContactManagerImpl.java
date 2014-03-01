@@ -31,17 +31,17 @@ public class ContactManagerImpl implements ContactManager {
 *	of if any contact is unknown / non-existent
 */
     public int addFutureMeeting(Set<Contact> contacts, Calendar date){
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+//        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Calendar todaysDate = Calendar.getInstance();
-        System.out.println("The todays date is: " + dateFormat.format(todaysDate.getTime()));
+//        System.out.println("The todays date is: " + dateFormat.format(todaysDate.getTime()));
         if(date.before(todaysDate)){
             throw new IllegalArgumentException();
         }
-           if(!contactSet.containsAll(contacts)){
+           if(!(contactSet.containsAll(contacts))){
             throw new IllegalArgumentException();
         }
         int newID = (int)(Math.random()*10000);
-        Meeting upComingMeeting = new MeetingImpl(newID,date,contacts);
+        Meeting upComingMeeting = new FutureMeetingImpl(newID,date,contacts);               //just added this
         //find the location to insert the meeting in the list - in date order
         for(int i=0;i<meetingSchedule.size();i++){
             Meeting checkMeeting = meetingSchedule.get(i);
@@ -74,12 +74,18 @@ public class ContactManagerImpl implements ContactManager {
                     if(auxMeeting.getDate().after(todaysDate.getTime())){
                         throw new IllegalArgumentException();
                     } else {
-                        result = (PastMeeting) auxMeeting;
-                        return result;
+                        try{
+                            if(auxMeeting instanceof PastMeeting){
+                                result = (PastMeeting) auxMeeting;
+                                return result;
+                            }
+                        } catch (ClassCastException ex){
+                            System.out.println("Error - auxMeeting MUST BE a PastMeeting");
+                        }
                     }
                 }
             }
-            return result;
+        return result;
     }
 
 /**
@@ -99,12 +105,13 @@ public class ContactManagerImpl implements ContactManager {
                 if(auxMeeting.getDate().before(todaysDate.getTime())){
                     throw new IllegalArgumentException();
                 } else {
-//                    System.out.println(auxMeeting.class);
-                    if(auxMeeting instanceof FutureMeeting){
-                        result = (FutureMeeting) auxMeeting;
-                        return result;
-                    } else {
-                        throw new RuntimeException("auxMeeting MUST BE a FutureMeeting");
+                    try{
+                        if(auxMeeting instanceof FutureMeeting){
+                            result = (FutureMeeting) auxMeeting;
+                            return result;
+                        }
+                    } catch (ClassCastException ex){
+                        System.out.println("Error - auxMeeting MUST BE a FutureMeeting");
                     }
                 }
             }
@@ -164,9 +171,16 @@ public class ContactManagerImpl implements ContactManager {
             throw new IllegalArgumentException();
         } else {
             for(int i=0;i<meetingSchedule.size();i++){
-                if(meetingSchedule.get(i).getContacts().contains(contact)){
-                    if(!result.contains(meetingSchedule.get(i))){
-                        result.add((PastMeeting) meetingSchedule.get(i));
+                Meeting auxMeeting = meetingSchedule.get(i);
+                if(auxMeeting.getContacts().contains(contact)){
+                    if(!result.contains(auxMeeting)){
+                        try{
+                            if(auxMeeting instanceof PastMeeting){
+                                result.add((PastMeeting) auxMeeting);
+                            }
+                        } catch (ClassCastException ex){
+                            System.out.println("Error - auxMeeting MUST BE a PastMeeting");
+                        }
                     }
                 }
             }
@@ -174,7 +188,7 @@ public class ContactManagerImpl implements ContactManager {
         }
     }
 /**
-* Create a new record for a meeting that took place in the past. 
+* Create a new record for a meeting that took place in the past.
 *
 * @param contacts a list of participants
 * @param date the date on which the meeting took place

@@ -91,7 +91,10 @@ public class ContactManagerTest {
         try {
             expectedId = futMeetIds.get(0);
             outputMeeting = diary.getPastMeeting(futMeetIds.get(0));
-            output = outputMeeting.getId();
+            if(outputMeeting != null){
+                output = outputMeeting.getId();
+                assertEquals(expectedId,output);
+            }
         } catch(IllegalArgumentException ex){
             System.out.println("TEST PASSED:  Error you entered a FUTURE meeting ID for getPastMeeting");
         }
