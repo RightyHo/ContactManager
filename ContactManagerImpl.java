@@ -151,7 +151,20 @@ public class ContactManagerImpl implements ContactManager {
 * @throws IllegalArgumentException if the contact does not exist 
 */
     public List<Meeting> getFutureMeetingList(Contact contact){
-        return null;
+        List<Meeting> result = new ArrayList<Meeting>();
+        if(!contactSet.contains(contact)){
+            throw new IllegalArgumentException();
+        } else {
+            for(int i=0;i<meetingSchedule.size();i++){
+                Meeting auxMeeting = meetingSchedule.get(i);
+                if(auxMeeting.getContacts().contains(contact)){
+                    if(!result.contains(auxMeeting)){
+                        result.add(auxMeeting);
+                    }
+                }
+            }
+            return result;
+        }
     }
 /**
 * Returns the list of meetings that are scheduled for the specified date
@@ -376,7 +389,7 @@ public class ContactManagerImpl implements ContactManager {
     public Contact getSingleContact(String name){
         for(int i=0;i<contactList.size();i++){
             Contact auxContact = contactList.get(i);
-            System.out.println(auxContact.getName());
+//            System.out.println(auxContact.getName());
             if(auxContact.getName().equals(name)){
                 return auxContact;
             }
