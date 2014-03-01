@@ -127,8 +127,7 @@ public class ContactManagerTest {
     }
     @Test
     public void testsAddNewPastMeeting(){
-        System.out.println("number of past meetings in diary before adding new one: " + pastMeetIds.size());
-        System.out.println("number of future meetings in diary before adding new one: " + futMeetIds.size());
+        System.out.println("number of future meetings in diary BEFORE adding new one: " + futMeetIds.size());
         //add contacts to contact set
         aux = diary.getContacts("Wade Kelly");
         contactsGroup.addAll(aux);
@@ -149,7 +148,6 @@ public class ContactManagerTest {
         List<Integer> allPastMeets = diary.getPastMeetingIdList();
         pastMeetIds.add(allPastMeets.get(allPastMeets.size()-1));
         System.out.println("number of past meetings in diary AFTER adding new one: " + pastMeetIds.size());
-        System.out.println("number of future meetings in diary AFTER adding new one: " + futMeetIds.size());
         //test that past meeting was added correctly
         strOutput = "";
         strExpected = description;
@@ -217,74 +215,50 @@ public class ContactManagerTest {
     public void testsGetPastMeetingList(){
         //test that method returns a list of meetings when a contact with a past meeting is passed
         //check that the returned list is in chronological order & doesn't contain duplicates
-        Contact searchContact = null;
-        //add new contacts
-		diary.addNewContact("Richard Barker","Neighbour");
-        //add contacts to contact set
-        aux = diary.getContacts("Richard Barker");
-		contactsGroup.addAll(aux);
-		//set past date
-		meetingDate.set(Calendar.YEAR,2013);
-		meetingDate.set(Calendar.MONTH,Calendar.JULY);
-		meetingDate.set(Calendar.DAY_OF_MONTH,1);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-        System.out.println("Date of Football game: " + dateFormat.format(meetingDate.getTime()));
-        //test using existing contacts & past date
-		diary.addNewPastMeeting(contactsGroup,meetingDate,"Watched football at North19");
+        
         //get contact Richard Barker
-        Set<Contact> auxSet = diary.getContacts("Richard Barker");
-        if(auxSet.isEmpty()){
-            System.out.println("get contacts function returned an empty set for Richard Barker");
-        } else {
-            Contact[] tempArray = auxSet.toArray(new Contact[0]);
-            for(int i=0;i<tempArray.length;i++){
-                searchContact = tempArray[i];
-                System.out.println("contents of the searchContact string: " + searchContact.getName());
-            }
-        }
+        Contact searchContact = diary.getSingleContact("Richard Barker");
+        //get list of all Richard Barkers past meetings there should be 2
         List<PastMeeting> listOutput = diary.getPastMeetingList(searchContact);
         if(listOutput.isEmpty()){
-            System.out.println("Can't find any past meetings with Richard Barker");
+            System.out.println("Error - Can't find any past meetings with Richard Barker");
+        } else if(listOutput.size() == 1){
+            //test that the method returns Richard Barkers first meeting on 14/07/11
+            for(int i=0;i<pastMeetIds.size();i++){
+                int id = pastMeetIds.get(i);
+                PastMeeting pm = diary.getPastMeeting(id);
+                Set<Contact> attendees = pm.getContacts();
+                if(attendees.contains(searchContact)){
+                    Calendar calOutput = pm.getDate();
+                    Calendar calExpected = new GregorianCalendar(2011, 07, 14);
+                    assertTrue(calExpected.equals(calOutput));
+                }
+            }
         } else {
-            System.out.println("number of meetings with Barks: " + Integer.toString(listOutput.size()));
-            System.out.println("meetings ID Barks: " + Integer.toString(listOutput.get(0).getId()));
-            System.out.println("meetings date Barks: " + dateFormat.format(listOutput.get(0).getDate().getTime()));
-            output = listOutput.get(0).getId();
-            List<Integer> idListOutput = diary.getPastMeetingIdList();
-            int expected = idListOutput.get(0);
-            assertEquals(expected,output);
-            //test first meeting date
-//            Calendar calOutput = listOutput.get(0).getDate();
-//            Calendar calExpected = new GregorianCalendar(2013,07,1);
-//            assertEquals(calExpected,calOutput);
+            //test that returned list is in chronological order & doesn't contain duplicates
+            for(int i=0;i<listOutput.size()-1;i++){
+                //test for duplicates
+                PastMeeting priorMeet = listOutput.get(i);
+                PastMeeting laterMeet = listOutput.get(i+1);
+                assertFalse(priorMeet.equals(laterMeet));
+                //test for date order
+                Calendar priorDate = priorMeet.getDate();
+                Calendar laterDate = laterMeet.getDate();
+                assertTrue(priorDate.before(laterDate));
+            }
         }
         //test passing a contact with no past meetings
         //get contact Wade Kelly - who only has a future meeting
-        searchContact = null;
-        auxSet = diary.getContacts("Wade Kelly");
-        if(auxSet.isEmpty()){
-            System.out.println("get contacts function returned an empty set for Wade Kelly");
-        } else {
-            Contact[] tempArray = auxSet.toArray(new Contact[0]);
-            for(int i=0;i<tempArray.length;i++){
-                searchContact = tempArray[i];
-                System.out.println("contents of the searchContact string: " + searchContact.getName());
-            }
-        }
+        searchContact = diary.getSingleContact("Wade Kelly");
         List<PastMeeting> listOutput2 = diary.getPastMeetingList(searchContact);
-        if(listOutput2.isEmpty()){
-            System.out.println("As expected there are no past meetings with Wade Kelly");
-        } else {
-            System.out.println("ERROR we have found a past meeting with Wade Kelly");
-            System.out.println("meetings ID Wade: " + Integer.toString(listOutput2.get(0).getId()));
-        }
+        assertTrue(listOutput2.isEmpty());
         //test passing a contact that does not exist
         try {
             Contact nonPerson = new ContactImpl(4678,"Ghost","contact doesn't exist");
-            listOutput = diary.getPastMeetingList(nonPerson);
+            listOutput2 = diary.getPastMeetingList(nonPerson);
         } catch (IllegalArgumentException ex){
-            System.out.println("Error the contact you entered doesn't exist!");
-//            ex.printStackTrace();
+            System.out.println("TEST PASSED: Error the contact you entered doesn't exist!");
+//          ex.printStackTrace();
         }
     }
     private void setUpContacts(){

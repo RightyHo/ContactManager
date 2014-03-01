@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 public class ContactManagerImpl implements ContactManager {
 	private List<Meeting> meetingSchedule;
     private Set<Contact> contactSet;
+    private List<Contact> contactList;
 /**
 * Class constructor initialises the meetingSchedule List using an ArrayList
 * The other alternative was to use a LinkedList structure
@@ -20,6 +21,7 @@ public class ContactManagerImpl implements ContactManager {
 	public ContactManagerImpl(){
 		meetingSchedule = new ArrayList<Meeting>();
         contactSet = new HashSet<Contact>();
+        contactList = new ArrayList<Contact>();
 	}
 /**
 * Add a new meeting to be held in the future. 
@@ -265,6 +267,7 @@ public class ContactManagerImpl implements ContactManager {
             int contactId = (int) Math.abs(10000*Math.random());
             Contact newContact = new ContactImpl(contactId,name,notes);
             contactSet.add(newContact);
+            contactList.add(newContact);
         }
     }
 /**
@@ -337,6 +340,36 @@ public class ContactManagerImpl implements ContactManager {
             }
         }
         return result;
+    }
+    /**
+     * Returns a single contact that correspond to the ID.
+     *
+     * @param id number of contact
+     * @return a single contact that corresponds to the ID.
+     * @throws IllegalArgumentException if the ID does not correspond to a real contact
+     */
+    public Contact getSingleContact(int id){
+        for(int i=0;i<contactList.size();i++){
+            if(contactList.get(i).getId()==id){
+                return contactList.get(i);
+            }
+        }
+        throw new IllegalArgumentException();
+    }
+    /**
+     * Returns a single contact that corresponds to the contact name string
+     *
+     * @param name of contact to search for
+     * @return a single contact that corresponds to the contact name
+     * @throws IllegalArgumentException if the ID does not correspond to a real contact
+     */
+    public Contact getSingleContact(String name){
+        for(int i=0;i<contactList.size();i++){
+            if(contactList.get(i).getName().equals(name)){
+                return contactList.get(i);
+            }
+        }
+        throw new IllegalArgumentException();
     }
 }
 
