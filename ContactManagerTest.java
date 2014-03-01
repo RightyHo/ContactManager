@@ -58,17 +58,17 @@ public class ContactManagerTest {
 		meetingDate.set(Calendar.MONTH,Calendar.JUNE);
 		meetingDate.set(Calendar.DAY_OF_MONTH,28);
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-        System.out.println("Future date for meeting: " + dateFormat.format(meetingDate.getTime()));
+//        System.out.println("Future date for meeting: " + dateFormat.format(meetingDate.getTime()));
         //test using existing contacts & future date
 		output = diary.addFutureMeeting(contactsGroup,meetingDate);
 		assertTrue(output != 0);
-        System.out.println("The meeting ID is " + String.valueOf(output));
+//        System.out.println("The meeting ID is " + String.valueOf(output));
 		//test using existing contacts & past date
 		try{
             meetingDate.set(Calendar.YEAR,1984);
             meetingDate.set(Calendar.MONTH,Calendar.SEPTEMBER);
             meetingDate.set(Calendar.DAY_OF_MONTH,2);
-            System.out.println("Past date for meeting: " + dateFormat.format(meetingDate.getTime()));
+//            System.out.println("Past date for meeting: " + dateFormat.format(meetingDate.getTime()));
 			output = diary.addFutureMeeting(contactsGroup,meetingDate);
 		} catch(IllegalArgumentException ex){
 			System.out.println("TEST PASSED:  Error you entered a date in the past!");
@@ -126,6 +126,24 @@ public class ContactManagerTest {
         }
     }
     @Test
+    public void testsGetMeeting(){
+        //test that method outputs the expected meeting when a valid future meeting ID is passed
+        Meeting meetOutput = diary.getMeeting(futMeetIds.get(0));
+        FutureMeeting fmExpected = diary.getFutureMeeting(futMeetIds.get(0));
+        output = meetOutput.getId();
+        expected = fmExpected.getId();
+        assertEquals(expected,output);
+        //test that method outputs the expected meeting when a valid past meeting ID is passed
+        meetOutput = diary.getMeeting(pastMeetIds.get(0));
+        PastMeeting pmExpected = diary.getPastMeeting(pastMeetIds.get(0));
+        output = meetOutput.getId();
+        expected = pmExpected.getId();
+        assertEquals(expected,output);
+        //test passing the method a meeting ID that doesn't exist
+        meetOutput = diary.getMeeting(7777);
+        assertNull(meetOutput);
+    }
+    @Test
     public void testsAddNewPastMeeting(){
         System.out.println("number of future meetings in diary BEFORE adding new one: " + futMeetIds.size());
         //add contacts to contact set
@@ -161,7 +179,7 @@ public class ContactManagerTest {
                     strOutput = s;
                 }
             } catch (NullPointerException ex){
-                System.out.println("Error - somethings gone wrong, we've got a null pointer");
+                System.out.println("ERROR - somethings gone wrong, we've got a null pointer");
             }
         }
         assertEquals(strExpected,strOutput);
@@ -170,7 +188,7 @@ public class ContactManagerTest {
             meetingDate.set(Calendar.YEAR,2015);
             meetingDate.set(Calendar.MONTH,Calendar.JANUARY);
             meetingDate.set(Calendar.DAY_OF_MONTH,14);
-            System.out.println("Mums birthday next year: " + dateFormat.format(meetingDate.getTime()));
+//            System.out.println("Mums birthday next year: " + dateFormat.format(meetingDate.getTime()));
             diary.addNewPastMeeting(contactsGroup,meetingDate,"Mums birthday next year");
         } catch(IllegalArgumentException ex){
             System.out.println("TEST PASSED: Error you entered a date in the future!");
@@ -221,7 +239,7 @@ public class ContactManagerTest {
         //get list of all Richard Barkers past meetings there should be 2
         List<PastMeeting> listOutput = diary.getPastMeetingList(searchContact);
         if(listOutput.isEmpty()){
-            System.out.println("Error - Can't find any past meetings with Richard Barker");
+            System.out.println("ERROR - Can't find any past meetings with Richard Barker");
         } else if(listOutput.size() == 1){
             //test that the method returns Richard Barkers first meeting on 14/07/11
             for(int i=0;i<pastMeetIds.size();i++){
@@ -259,6 +277,49 @@ public class ContactManagerTest {
         } catch (IllegalArgumentException ex){
             System.out.println("TEST PASSED: Error the contact you entered doesn't exist!");
 //          ex.printStackTrace();
+        }
+    }
+    @Test
+    public void testsAddNewContact(){
+        //test with valid name & notes
+        try{
+            diary.addNewContact("Andrew Ho","Thats me!");
+        } catch (NullPointerException ex){
+            System.out.println("ERROR - one of the name or notes fields are null!");
+        }
+        Contact findContact = diary.getSingleContact("Andrew Ho");
+        strExpected = "Andrew Ho";
+        strOutput = findContact.getName();
+        assertEquals(strExpected,strOutput);
+        //test with null name
+        try{
+            diary.addNewContact(null,"who dis?");
+        } catch (NullPointerException ex){
+            System.out.println("TESSED PASSED: Error - the name field WAS null!");
+        }
+        //test with null notes
+        try{
+            diary.addNewContact("Juan Love",null);
+        } catch (NullPointerException ex){
+            System.out.println("TESSED PASSED: Error - the notes field WAS null!");
+        }
+    }
+    @Test
+    public void testsGetContacts(){
+        Set<Contact> setOutput = null;
+        try {
+            setOutput = diary.getContacts("Travis Wallach");
+        } catch (NullPointerException ex){
+            System.out.println("ERROR - the name parameter was null");
+        }
+        //test that the method returns a non-empty set
+        assertFalse(setOutput.isEmpty());
+        //test that method outputs the expected contact ID
+        if(!setOutput.isEmpty()){
+            Contact[] ctArray = setOutput.toArray(new Contact[setOutput.size()]);
+            output = ctArray[0].getId();
+            expected = diary.getSingleContact("Travis Wallach").getId();
+            assertEquals(expected,output);
         }
     }
     private void setUpContacts(){

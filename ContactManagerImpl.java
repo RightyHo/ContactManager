@@ -82,7 +82,7 @@ public class ContactManagerImpl implements ContactManager {
                                 return result;
                             }
                         } catch (ClassCastException ex){
-                            System.out.println("Error - auxMeeting MUST BE a PastMeeting");
+                            System.out.println("ERROR - auxMeeting MUST BE a PastMeeting");
                         }
                     }
                 }
@@ -113,7 +113,7 @@ public class ContactManagerImpl implements ContactManager {
                             return result;
                         }
                     } catch (ClassCastException ex){
-                        System.out.println("Error - auxMeeting MUST BE a FutureMeeting");
+                        System.out.println("ERROR - auxMeeting MUST BE a FutureMeeting");
                     }
                 }
             }
@@ -127,7 +127,17 @@ public class ContactManagerImpl implements ContactManager {
 * @return the meeting with the requested ID, or null if it there is none.
 */
     public Meeting getMeeting(int id){
-        return null;
+        Meeting result = null;
+        Calendar todaysDate = Calendar.getInstance();
+        for(int i=0;i<meetingSchedule.size();i++){
+            Meeting auxMeeting = meetingSchedule.get(i);
+            int auxId = auxMeeting.getId();
+            if(auxId == id){
+                result = auxMeeting;
+                return result;
+            }
+        }
+        return result;
     }
 /**
 * Returns the list of future meetings scheduled with this contact. 
@@ -181,7 +191,7 @@ public class ContactManagerImpl implements ContactManager {
                                 result.add((PastMeeting) auxMeeting);
                             }
                         } catch (ClassCastException ex){
-                            System.out.println("Error - auxMeeting MUST BE a PastMeeting");
+                            System.out.println("ERROR - auxMeeting MUST BE a PastMeeting");
                         }
                     }
                 }
@@ -365,8 +375,10 @@ public class ContactManagerImpl implements ContactManager {
      */
     public Contact getSingleContact(String name){
         for(int i=0;i<contactList.size();i++){
-            if(contactList.get(i).getName().equals(name)){
-                return contactList.get(i);
+            Contact auxContact = contactList.get(i);
+            System.out.println(auxContact.getName());
+            if(auxContact.getName().equals(name)){
+                return auxContact;
             }
         }
         throw new IllegalArgumentException();
