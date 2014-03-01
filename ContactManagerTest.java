@@ -79,7 +79,7 @@ public class ContactManagerTest {
 			Contact mysteryPerson = new ContactImpl(2346,"Joe Blogs","made up person not in contacts");
 			Set<Contact> mysteryList = new HashSet<Contact>();
 			mysteryList.add(mysteryPerson);
-			meetingDate.set(2022,06,28);
+			meetingDate.set(2022,05,28);
 			output = diary.addFutureMeeting(mysteryList,meetingDate);
 		} catch(IllegalArgumentException ex){
 			System.out.println("TEST PASSED:  Error you entered a non-existant contact!");
@@ -142,6 +142,56 @@ public class ContactManagerTest {
         //test passing the method a meeting ID that doesn't exist
         meetOutput = diary.getMeeting(7777);
         assertNull(meetOutput);
+    }
+    @Test
+    public void testsGetFutureMeetingList(){
+        //test that method returns a list of meetings when a contact with a future meeting is passed
+        //check that the returned list is in chronological order & doesn't contain duplicates
+        
+        //get contact Philippa Ho
+        Contact searchContact = diary.getSingleContact("Philippa Ho");
+        //get list of all Philippa Ho's future meetings there should be 2
+        List<Meeting> listOutput = diary.getFutureMeetingList(searchContact);
+        if(listOutput.isEmpty()){
+            System.out.println("Error - Can't find any future meetings with Philippa Ho in attendance");
+        } else if(listOutput.size() == 1){
+            //test that the method returns Philippa Ho's first meeting on 02/09/15
+            for(int i=0;i<futMeetIds.size();i++){
+                int id = futMeetIds.get(i);
+                FutureMeeting fm= diary.getFutureMeeting(id);
+                Set<Contact> attendees = fm.getContacts();
+                if(attendees.contains(searchContact)){
+                    Calendar calOutput = fm.getDate();
+                    Calendar calExpected = new GregorianCalendar(2015,8,02);
+                    assertTrue(calExpected.equals(calOutput));
+                }
+            }
+        } else {
+            //test that returned list is in chronological order & doesn't contain duplicates
+            for(int i=0;i<listOutput.size()-1;i++){
+                //test for duplicates
+                Meeting priorMeet = listOutput.get(i);
+                Meeting laterMeet = listOutput.get(i+1);
+                assertFalse(priorMeet.equals(laterMeet));
+                //test for date order
+                Calendar priorDate = priorMeet.getDate();
+                Calendar laterDate = laterMeet.getDate();
+                assertTrue(priorDate.before(laterDate));
+            }
+        }
+        //test passing a contact with no past meetings
+        //get contact Tondi Busse - who only has a past meeting
+        searchContact = diary.getSingleContact("Tondi Busse");
+        List<Meeting> listOutput2 = diary.getFutureMeetingList(searchContact);
+        assertTrue(listOutput2.isEmpty());
+        //test passing a contact that does not exist
+        try {
+            Contact notInDiary = new ContactImpl(5498,"Stranger","contact isn't in my diary");
+            listOutput2 = diary.getFutureMeetingList(notInDiary);
+        } catch (IllegalArgumentException ex){
+            System.out.println("TEST PASSED: Error the contact you entered isn't in my diary!");
+//          ex.printStackTrace();
+        }
     }
     @Test
     public void testsAddNewPastMeeting(){
@@ -248,7 +298,7 @@ public class ContactManagerTest {
                 Set<Contact> attendees = pm.getContacts();
                 if(attendees.contains(searchContact)){
                     Calendar calOutput = pm.getDate();
-                    Calendar calExpected = new GregorianCalendar(2011, 07, 14);
+                    Calendar calExpected = new GregorianCalendar(2011, 06, 14);
                     assertTrue(calExpected.equals(calOutput));
                 }
             }
