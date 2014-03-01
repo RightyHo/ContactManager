@@ -177,7 +177,16 @@ public class ContactManagerImpl implements ContactManager {
 * @return the list of meetings 
 */
     public List<Meeting> getFutureMeetingList(Calendar date){
-        return null;
+        List<Meeting> result = new ArrayList<Meeting>();
+        for(int i=0;i<meetingSchedule.size();i++){
+            Meeting auxMeeting = meetingSchedule.get(i);
+            if(auxMeeting.getDate().equals(date)){
+                if(!result.contains(auxMeeting)){
+                    result.add(auxMeeting);
+                }
+            }
+        }
+        return result;
     }
 /**
 * Returns the list of past meetings in which this contact has participated. 
