@@ -9,6 +9,14 @@ import java.util.Set;
 import java.util.HashSet;
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.Scanner;
 
 public class ContactManagerTest {
     private ContactManager diary;
@@ -373,6 +381,11 @@ public class ContactManagerTest {
     public void testsAddMeetingNotes(){
         //try adding notes to a valid meeting that occured in the past
         try{
+//            for(int i=0;i<futMeetIds.size();i++){
+//                System.out.println("PRE-TEST ID: " + String.valueOf(pastMeetIds.get(i)));
+//                System.out.println("PRE-TEST NOTES: " + diary.getPastMeeting(pastMeetIds.get(i)).getNotes());
+//                System.out.println("PRE-TEST DATE: " + diary.getPastMeeting(pastMeetIds.get(i)).getDate());
+//            }
             diary.addMeetingNotes(pastMeetIds.get(0),"Better late than never...meeting was successful!");
         } catch (IllegalArgumentException ex){
             System.out.println("ERROR - the meeting does not exist");
@@ -469,6 +482,24 @@ public class ContactManagerTest {
             expected = diary.getSingleContact("Travis Wallach").getId();
             assertEquals(expected,output);
         }
+    }
+    @Test
+    public void testsFlush(){
+        //add contacts to contact set
+        aux = diary.getContacts("Travis Wallach");
+		contactsGroup.addAll(aux);
+        aux = diary.getContacts("Philippa Ho");
+		contactsGroup.addAll(aux);
+        aux = diary.getContacts("Tondi Busse");
+		contactsGroup.addAll(aux);
+		//set future date
+		meetingDate.set(Calendar.YEAR,2020);
+		meetingDate.set(Calendar.MONTH,Calendar.NOVEMBER);
+		meetingDate.set(Calendar.DAY_OF_MONTH,21);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+		output = diary.addFutureMeeting(contactsGroup,meetingDate);
+        diary.flush();
+        Schedule outputSchedule = diary.updateMeetingShedule();
     }
     private void setUpContacts(){
         //add new contacts to the diary

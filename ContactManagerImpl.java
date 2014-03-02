@@ -6,6 +6,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.Scanner;
 /**
 * A class to manage your contacts and meetings. 
 * Implements the ContactManager interface using an ArrayList
@@ -14,6 +22,7 @@ public class ContactManagerImpl implements ContactManager {
 	private List<Meeting> meetingSchedule;
     private Set<Contact> contactSet;
     private List<Contact> contactList;
+    final String FILENAME = "ContactManager.xml";
 /**
 * Class constructor initialises the meetingSchedule List using an ArrayList
 * The other alternative was to use a LinkedList structure
@@ -289,18 +298,13 @@ public class ContactManagerImpl implements ContactManager {
         } else if(text == null){
             throw new NullPointerException();
         } else {
-            if(focusMeeting instanceof FutureMeeting){
-                //convert to a past meeting
-                try{
-                    int outputId = convertToPastMeeting(focusMeeting,text);
-                } catch (IllegalStateException ex){
-                    System.out.println("ERROR - meeting has yet to occur");
-                } catch (NullPointerException ex){
-                    System.out.println("ERROR - meeting or notes were sent with a null value");
-                }
-            } else if(focusMeeting instanceof PastMeeting){
-                PastMeeting auxMeeting = (PastMeeting) focusMeeting;
-                auxMeeting.setNotes(text);
+            try{
+                int outputId = convertToPastMeeting(focusMeeting,text);
+                System.out.println("Meeting Notes were added for Meeting ID: " + String.valueOf(outputId));
+            } catch (IllegalStateException ex){
+                System.out.println("ERROR - meeting has yet to occur");
+            } catch (NullPointerException ex){
+                System.out.println("ERROR - meeting or notes were sent with a null value");
             }
         }
     }
@@ -361,7 +365,18 @@ public class ContactManagerImpl implements ContactManager {
 * closed and when/if the user requests it. 
 */
     public void flush(){
-        //do something
+        Schedule saveSchedule = new Schedule(meetingSchedule,contactList);
+        
+        XMLEncoder encodeContacts = null;
+        try {
+            encodeContacts = new XMLEncoder(
+                                new BufferedOutputStream(
+                                    new FileOutputStream(FILENAME)));
+        } catch (FileNotFoundException ex) {
+            System.err.println("Encoding Contact Manager: " + ex);
+        }
+        encodeContacts.writeObject(saveSchedule);
+        encodeContacts.close();
     }
 /**
 * Returns a list of all past meeting ID's
@@ -464,6 +479,34 @@ public class ContactManagerImpl implements ContactManager {
         //Append the specified meeting to the end of this list if the new meeting date is after all existing meetings in list
         meetingSchedule.add(oldMeeting);
         return focusID;
+    }
+    public Schedule updateMeetingShedule(){
+        //read ContactManager file and display it on screen
+        Scanner scan = null;
+        try {
+            scan = new Scanner(
+                               new BufferedInputStream(
+                                                       new FileInputStream(FILENAME)));
+        } catch (FileNotFoundException ex) {
+            System.err.println("Reading Contact Manager: " + ex);
+        }
+        while (scan.hasNext()){
+            System.out.println(scan.next());
+        }
+        scan.close();
+        //turn the read file back into an object
+        XMLDecoder dCode = null;
+        try {
+            dCode = new XMLDecoder(
+                                   new BufferedInputStream(
+                                                           new FileInputStream(FILENAME)));
+        } catch (FileNotFoundException ex) {
+            System.out.println("ERROR - file not found!");
+            ex.printStackTrace();
+        }
+        Schedule downloadedSchedule = (Schedule) dCode.readObject();
+        dCode.close();
+        return downloadedSchedule;
     }
 }
 
