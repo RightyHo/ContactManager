@@ -224,10 +224,12 @@ public class ContactManagerTest {
                 assertFalse(priorMeet.equals(laterMeet));
                 //test for date order
                 Calendar priorDate = priorMeet.getDate();
-                System.out.println(priorDate);
+//                System.out.println(priorDate);
                 Calendar laterDate = laterMeet.getDate();
-                System.out.println(laterDate);
-                assertTrue(priorDate.before(laterDate));
+//                System.out.println(laterDate);
+                if(!priorDate.equals(laterDate)){
+                    assertTrue(priorDate.before(laterDate));
+                }
             }
         }
     }
@@ -364,6 +366,64 @@ public class ContactManagerTest {
             diary.addNewPastMeeting(contactsGroup,meetingDate,"contactsGroup is null btw");
         } catch(NullPointerException ex){
             System.out.println("TEST PASSED: Error the contacts group you entered was null!");
+//  	    ex.printStackTrace();
+        }
+    }
+    @Test
+    public void testsAddMeetingNotes(){
+        //try adding notes to a valid meeting that occured in the past
+        try{
+            diary.addMeetingNotes(pastMeetIds.get(0),"Better late than never...meeting was successful!");
+        } catch (IllegalArgumentException ex){
+            System.out.println("ERROR - the meeting does not exist");
+//  	    ex.printStackTrace();
+        } catch (IllegalStateException ex){
+            System.out.println("ERROR - the meeting is set for a date in the future");
+//  	    ex.printStackTrace();
+        } catch (NullPointerException ex){
+            System.out.println("ERROR - the notes you tried to add are null!");
+//  	    ex.printStackTrace();
+        }
+        strOutput = diary.getPastMeeting(pastMeetIds.get(0)).getNotes();
+        strExpected = "Better late than never...meeting was successful!";
+        assertEquals(strExpected,strOutput);
+        //try adding notes to a valid meeting that will occur in the future
+        try{
+            diary.addMeetingNotes(futMeetIds.get(0),"This shouldn't work...");
+        } catch (IllegalArgumentException ex){
+            System.out.println("ERROR - the meeting does not exist");
+//  	    ex.printStackTrace();
+        } catch (IllegalStateException ex){
+            System.out.println("TEST PASSED: ERROR - the meeting is set for a date in the future");
+//  	    ex.printStackTrace();
+        } catch (NullPointerException ex){
+            System.out.println("ERROR - the notes you tried to add are null!");
+//  	    ex.printStackTrace();
+        }
+        //try adding notes to a meeting ID that doesn't exist
+        try{
+            diary.addMeetingNotes(4824,"Good luck trying to find this meeting!");
+        } catch (IllegalArgumentException ex){
+            System.out.println("TEST PASSED: ERROR - the meeting does not exist");
+//  	    ex.printStackTrace();
+        } catch (IllegalStateException ex){
+            System.out.println("ERROR - the meeting is set for a date in the future");
+//  	    ex.printStackTrace();
+        } catch (NullPointerException ex){
+            System.out.println("ERROR - the notes you tried to add are null!");
+//  	    ex.printStackTrace();
+        }
+        //try adding null notes to a meeting
+        try{
+            diary.addMeetingNotes(pastMeetIds.get(0),null);
+        } catch (IllegalArgumentException ex){
+            System.out.println("ERROR - the meeting does not exist");
+//  	    ex.printStackTrace();
+        } catch (IllegalStateException ex){
+            System.out.println("ERROR - the meeting is set for a date in the future");
+//  	    ex.printStackTrace();
+        } catch (NullPointerException ex){
+            System.out.println("TEST PASSED: ERROR - the notes you tried to add are null!");
 //  	    ex.printStackTrace();
         }
     }

@@ -7,6 +7,11 @@ import java.util.Set;
  */
 public class PastMeetingImpl extends MeetingImpl implements PastMeeting {
     private String meetingMinutes;
+    
+    public PastMeetingImpl(int meetingId,Calendar scheduledDate,Set<Contact> participants,String meetingMinutes){
+        super(meetingId,scheduledDate,participants);
+        this.meetingMinutes = meetingMinutes;
+    }
     /**
      * Returns the notes from the meeting.
      *
@@ -14,11 +19,15 @@ public class PastMeetingImpl extends MeetingImpl implements PastMeeting {
      *
      * @return the notes from the meeting.
      */
-    public PastMeetingImpl(int meetingId,Calendar scheduledDate,Set<Contact> participants,String meetingMinutes){
-        super(meetingId,scheduledDate,participants);
-        this.meetingMinutes = meetingMinutes;
-    }
     public String getNotes(){
         return meetingMinutes;
+    }
+    /**
+     * Sets the notes from the meeting.
+     *
+     * @param meetingMinutes notes from the meeting to be added
+     */
+    public void setNotes(String meetingMinutes){
+        this.meetingMinutes = meetingMinutes;
     }
 }

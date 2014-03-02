@@ -255,7 +255,7 @@ public class ContactManagerImpl implements ContactManager {
         //find the location to insert the meeting in the list - in date order
         for(int i=0;i<meetingSchedule.size();i++){
             Meeting checkMeeting = meetingSchedule.get(i);
-            Calendar checkDate = checkMeeting.getDate();  //could put these both on one line?
+            Calendar checkDate = checkMeeting.getDate();
             if(checkDate.after(date)){
                 meetingSchedule.add(i,oldMeeting);
                 return;
@@ -280,7 +280,29 @@ public class ContactManagerImpl implements ContactManager {
 * @throws NullPointerException if the notes are null 
 */
     public void addMeetingNotes(int id, String text){
-        //do something
+        Meeting focusMeeting = getMeeting(id);
+        Calendar todaysDate = Calendar.getInstance();
+        if(focusMeeting == null){
+            throw new IllegalArgumentException();
+        } else if(focusMeeting.getDate().after(todaysDate)){
+            throw new IllegalStateException();
+        } else if(text == null){
+            throw new NullPointerException();
+        } else {
+            if(focusMeeting instanceof FutureMeeting){
+                //convert to a past meeting
+                try{
+                    int outputId = convertToPastMeeting(focusMeeting,text);
+                } catch (IllegalStateException ex){
+                    System.out.println("ERROR - meeting has yet to occur");
+                } catch (NullPointerException ex){
+                    System.out.println("ERROR - meeting or notes were sent with a null value");
+                }
+            } else if(focusMeeting instanceof PastMeeting){
+                PastMeeting auxMeeting = (PastMeeting) focusMeeting;
+                auxMeeting.setNotes(text);
+            }
+        }
     }
 /**
 * Create a new contact with the specified name and notes. 
@@ -404,6 +426,44 @@ public class ContactManagerImpl implements ContactManager {
             }
         }
         throw new IllegalArgumentException();
+    }
+    /**
+     * Converts a future meeting to a past meeting by copying the future meeting details and adding 
+     * meeting notes to a new past meeting...and removing the old future meeting from the contact manager
+     *
+     * @param futMeet a meeting that was originally set up as a future meeting but which has now occured
+     * @param text messages to be added about the meeting.
+     * @throws NullPointerException if futMeet or text is null
+     * @throws IllegalStateException if the meeting has yet to occur
+     */
+    public int convertToPastMeeting(Meeting futMeet,String text){
+//        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        Calendar todaysDate = Calendar.getInstance();
+//        System.out.println("The todays date is: " + dateFormat.format(todaysDate.getTime()));
+        if(futMeet.getDate().after(todaysDate)){
+            throw new IllegalStateException();
+        }
+        if(futMeet == null || text == null){
+            throw new NullPointerException();
+        }
+        int focusID = futMeet.getId();
+        Calendar date = futMeet.getDate();
+        Set<Contact> contacts = futMeet.getContacts();
+        Meeting oldMeeting = new PastMeetingImpl(focusID,date,contacts,text);
+        //remove futMeet from the contact manager meeting schedule
+        meetingSchedule.remove(futMeet);
+        //find the location to insert the meeting in the list - in date order
+        for(int i=0;i<meetingSchedule.size();i++){
+            Meeting focusMeeting = meetingSchedule.get(i);
+            Calendar focusDate = focusMeeting.getDate();
+            if(focusDate.after(date)){
+                meetingSchedule.add(i,oldMeeting);
+                return focusID;
+            }
+        }
+        //Append the specified meeting to the end of this list if the new meeting date is after all existing meetings in list
+        meetingSchedule.add(oldMeeting);
+        return focusID;
     }
 }
 
