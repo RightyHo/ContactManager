@@ -1,13 +1,14 @@
 import java.util.Calendar;
 import java.util.Set;
+import java.io.Serializable;
 /**
  * A meeting that was held in the past.
  *
  * It includes your notes about what happened and what was agreed.
  */
-public class PastMeetingImpl extends MeetingImpl implements PastMeeting {
+public class PastMeetingImpl extends MeetingImpl implements PastMeeting,Serializable {
     private String meetingMinutes;
-    
+
     public PastMeetingImpl(int meetingId,Calendar scheduledDate,Set<Contact> participants,String meetingMinutes){
         super(meetingId,scheduledDate,participants);
         this.meetingMinutes = meetingMinutes;
