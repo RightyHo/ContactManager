@@ -12,113 +12,111 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.FileOutputStream;
 import java.util.Scanner;
 import java.io.Serializable;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 /**
-* A class to manage your contacts and meetings.
-* Implements the ContactManager interface using an ArrayList
-*/
-public class ContactManagerImpl implements ContactManager {
-	private List<Meeting> meetingSchedule;
-    private Set<Contact> contactSet;
-    private List<Contact> contactList;
+ * A class to manage your contacts and meetings.
+ * Implements the ContactManager interface using an ArrayList
+ */
+public class ContactManagerImplMach2 implements ContactManager {
+	private Schedule diary;
     private final String FILENAME = "Contacts.txt";
-
-/**
-* Class constructor initialises the meetingSchedule List using an ArrayList
-* The other alternative was to use a LinkedList structure
-*/
-	public ContactManagerImpl(){
-		meetingSchedule = new ArrayList<Meeting>();
-        contactSet = new HashSet<Contact>();
-        contactList = new ArrayList<Contact>();
+    
+    /**
+     * Class constructor initialises the diary List using an ArrayList
+     */
+	public ContactManagerImplMach2(){
+		diary = new ScheduleImpl();
         try {
-			meetingSchedule = decodeSchedule();
+			diary = decodeFile();
 		} catch (Exception ex){
 			//no file for the first time
             System.out.println("The first time this class is run there will not be a file to read!");
 		}
 	}
-/**
-* Add a new meeting to be held in the future.
-*
-* @param contacts a list of contacts that will participate in the meeting
-* @param date the date on which the meeting will take place
-* @return the ID for the meeting
-* @throws IllegalArgumentException if the meeting is set for a time in the past,
-*	of if any contact is unknown / non-existent
-*/
+    /**
+     * Add a new meeting to be held in the future.
+     *
+     * @param contacts a list of contacts that will participate in the meeting
+     * @param date the date on which the meeting will take place
+     * @return the ID for the meeting
+     * @throws IllegalArgumentException if the meeting is set for a time in the past,
+     *	of if any contact is unknown / non-existent
+     */
     public int addFutureMeeting(Set<Contact> contacts, Calendar date){
         Calendar todaysDate = Calendar.getInstance();
         if(date.before(todaysDate)){
             throw new IllegalArgumentException();
         }
-           if(!(contactSet.containsAll(contacts))){
+        if(!(diary.getContactSet().containsAll(contacts))){
             throw new IllegalArgumentException();
         }
         int newID = (int)(Math.random()*10000);
-
+        
         Meeting upComingMeeting = new FutureMeetingImpl(newID,date,contacts);
         //find the location to insert the meeting in the list - in date order
-        for(int i=0;i<meetingSchedule.size();i++){
-            Meeting checkMeeting = meetingSchedule.get(i);
+        for(int i=0;i<diary.getMeetingSchedule().size();i++){
+            Meeting checkMeeting = diary.getMeetingSchedule().get(i);
             Calendar checkDate = checkMeeting.getDate();
             if(checkDate.after(date)){
-                meetingSchedule.add(i,upComingMeeting);
+                diary.getMeetingSchedule().add(i,upComingMeeting);
                 return upComingMeeting.getId();
             }
         }
         //Append the specified meeting to the end of this list if the new meeting date is after all existing meetings in list
-        meetingSchedule.add(upComingMeeting);
+        diary.getMeetingSchedule().add(upComingMeeting);
         return upComingMeeting.getId();
     }
-
-
-/**
-* Returns the PAST meeting with the requested ID, or null if it there is none.
-*
-* @param id the ID for the meeting
-* @return the meeting with the requested ID, or null if it there is none.
-* @throws IllegalArgumentException if there is a meeting with that ID happening in the future
-*/
+    
+    
+    /**
+     * Returns the PAST meeting with the requested ID, or null if it there is none.
+     *
+     * @param id the ID for the meeting
+     * @return the meeting with the requested ID, or null if it there is none.
+     * @throws IllegalArgumentException if there is a meeting with that ID happening in the future
+     */
     public PastMeeting getPastMeeting(int id){
         PastMeeting result = null;
         Calendar todaysDate = Calendar.getInstance();
-            for(int i=0;i<meetingSchedule.size();i++){
-                Meeting auxMeeting = meetingSchedule.get(i);
-                int auxId = auxMeeting.getId();
-                if(auxId == id){
-                    if(auxMeeting.getDate().after(todaysDate.getTime())){
-                        throw new IllegalArgumentException();
-                    } else {
-                        try{
-                            if(auxMeeting instanceof PastMeeting){
-                                result = (PastMeeting) auxMeeting;
-                                return result;
-                            }
-                        } catch (ClassCastException ex){
-                            System.out.println("ERROR - auxMeeting MUST BE a PastMeeting");
+        for(int i=0;i<diary.getMeetingSchedule().size();i++){
+            Meeting auxMeeting = diary.getMeetingSchedule().get(i);
+            int auxId = auxMeeting.getId();
+            if(auxId == id){
+                if(auxMeeting.getDate().after(todaysDate.getTime())){
+                    throw new IllegalArgumentException();
+                } else {
+                    try{
+                        if(auxMeeting instanceof PastMeeting){
+                            result = (PastMeeting) auxMeeting;
+                            return result;
                         }
+                    } catch (ClassCastException ex){
+                        System.out.println("ERROR - auxMeeting MUST BE a PastMeeting");
                     }
                 }
             }
+        }
         return result;
     }
-
-/**
-* Returns the FUTURE meeting with the requested ID, or null if there is none.
-*
-* @param id the ID for the meeting
-* @return the meeting with the requested ID, or null if it there is none.
-* @throws IllegalArgumentException if there is a meeting with that ID happening in the past
-*/
+    
+    /**
+     * Returns the FUTURE meeting with the requested ID, or null if there is none.
+     *
+     * @param id the ID for the meeting
+     * @return the meeting with the requested ID, or null if it there is none.
+     * @throws IllegalArgumentException if there is a meeting with that ID happening in the past
+     */
     public FutureMeeting getFutureMeeting(int id){
         FutureMeeting result = null;
         Calendar todaysDate = Calendar.getInstance();
-        for(int i=0;i<meetingSchedule.size();i++){
-            Meeting auxMeeting = meetingSchedule.get(i);
+        for(int i=0;i<diary.getMeetingSchedule().size();i++){
+            Meeting auxMeeting = diary.getMeetingSchedule().get(i);
             int auxId = auxMeeting.getId();
             if(auxId == id){
                 if(auxMeeting.getDate().before(todaysDate.getTime())){
@@ -137,17 +135,17 @@ public class ContactManagerImpl implements ContactManager {
         }
         return result;
     }
-/**
-* Returns the meeting with the requested ID, or null if it there is none.
-*
-* @param id the ID for the meeting
-* @return the meeting with the requested ID, or null if it there is none.
-*/
+    /**
+     * Returns the meeting with the requested ID, or null if it there is none.
+     *
+     * @param id the ID for the meeting
+     * @return the meeting with the requested ID, or null if it there is none.
+     */
     public Meeting getMeeting(int id){
         Meeting result = null;
         Calendar todaysDate = Calendar.getInstance();
-        for(int i=0;i<meetingSchedule.size();i++){
-            Meeting auxMeeting = meetingSchedule.get(i);
+        for(int i=0;i<diary.getMeetingSchedule().size();i++){
+            Meeting auxMeeting = diary.getMeetingSchedule().get(i);
             int auxId = auxMeeting.getId();
             if(auxId == id){
                 result = auxMeeting;
@@ -156,24 +154,24 @@ public class ContactManagerImpl implements ContactManager {
         }
         return result;
     }
-/**
-* Returns the list of future meetings scheduled with this contact.
-*
-* If there are none, the returned list will be empty. Otherwise,
-* the list will be chronologically sorted and will not contain any
-* duplicates.
-*
-* @param contact one of the users contacts
-* @return the list of future meeting(s) scheduled with this contact (maybe empty).
-* @throws IllegalArgumentException if the contact does not exist
-*/
+    /**
+     * Returns the list of future meetings scheduled with this contact.
+     *
+     * If there are none, the returned list will be empty. Otherwise,
+     * the list will be chronologically sorted and will not contain any
+     * duplicates.
+     *
+     * @param contact one of the users contacts
+     * @return the list of future meeting(s) scheduled with this contact (maybe empty).
+     * @throws IllegalArgumentException if the contact does not exist
+     */
     public List<Meeting> getFutureMeetingList(Contact contact){
         List<Meeting> result = new ArrayList<Meeting>();
-        if(!contactSet.contains(contact)){
+        if(!diary.getContactSet().contains(contact)){
             throw new IllegalArgumentException();
         } else {
-            for(int i=0;i<meetingSchedule.size();i++){
-                Meeting auxMeeting = meetingSchedule.get(i);
+            for(int i=0;i<diary.getMeetingSchedule().size();i++){
+                Meeting auxMeeting = diary.getMeetingSchedule().get(i);
                 if(auxMeeting.getContacts().contains(contact)){
                     if(!result.contains(auxMeeting)){
                         result.add(auxMeeting);
@@ -183,20 +181,20 @@ public class ContactManagerImpl implements ContactManager {
             return result;
         }
     }
-/**
-* Returns the list of meetings that are scheduled for the specified date
-*
-* If there are none, the returned list will be empty. Otherwise,
-* the list will be chronologically sorted and will not contain any
-* duplicates.
-*
-* @param date the date
-* @return the list of meetings
-*/
+    /**
+     * Returns the list of meetings that are scheduled for the specified date
+     *
+     * If there are none, the returned list will be empty. Otherwise,
+     * the list will be chronologically sorted and will not contain any
+     * duplicates.
+     *
+     * @param date the date
+     * @return the list of meetings
+     */
     public List<Meeting> getFutureMeetingList(Calendar date){
         List<Meeting> result = new ArrayList<Meeting>();
-        for(int i=0;i<meetingSchedule.size();i++){
-            Meeting auxMeeting = meetingSchedule.get(i);
+        for(int i=0;i<diary.getMeetingSchedule().size();i++){
+            Meeting auxMeeting = diary.getMeetingSchedule().get(i);
             if(auxMeeting.getDate().equals(date)){
                 if(!result.contains(auxMeeting)){
                     result.add(auxMeeting);
@@ -205,24 +203,24 @@ public class ContactManagerImpl implements ContactManager {
         }
         return result;
     }
-/**
-* Returns the list of past meetings in which this contact has participated.
-*
-* If there are none, the returned list will be empty. Otherwise,
-* the list will be chronologically sorted and will not contain any
-* duplicates.
-*
-* @param contact one of the users contacts
-* @return Returns the list of past meetings in which this contact has participated (maybe empty).
-* @throws IllegalArgumentException if the contact does not exist
-*/
+    /**
+     * Returns the list of past meetings in which this contact has participated.
+     *
+     * If there are none, the returned list will be empty. Otherwise,
+     * the list will be chronologically sorted and will not contain any
+     * duplicates.
+     *
+     * @param contact one of the users contacts
+     * @return Returns the list of past meetings in which this contact has participated (maybe empty).
+     * @throws IllegalArgumentException if the contact does not exist
+     */
     public List<PastMeeting> getPastMeetingList(Contact contact){
         List<PastMeeting> result = new ArrayList<PastMeeting>();
-        if(!contactSet.contains(contact)){
+        if(!diary.getContactSet().contains(contact)){
             throw new IllegalArgumentException();
         } else {
-            for(int i=0;i<meetingSchedule.size();i++){
-                Meeting auxMeeting = meetingSchedule.get(i);
+            for(int i=0;i<diary.getMeetingSchedule().size();i++){
+                Meeting auxMeeting = diary.getMeetingSchedule().get(i);
                 if(auxMeeting.getContacts().contains(contact)){
                     if(!result.contains(auxMeeting)){
                         try{
@@ -235,25 +233,25 @@ public class ContactManagerImpl implements ContactManager {
                     }
                 }
             }
-        return result;
+            return result;
         }
     }
-/**
-* Create a new record for a meeting that took place in the past.
-*
-* @param contacts a list of participants
-* @param date the date on which the meeting took place
-* @param text messages to be added about the meeting.
-* @throws IllegalArgumentException if the list of contacts is
-* empty, or any of the contacts does not exist
-* @throws NullPointerException if any of the arguments is null
-*/
+    /**
+     * Create a new record for a meeting that took place in the past.
+     *
+     * @param contacts a list of participants
+     * @param date the date on which the meeting took place
+     * @param text messages to be added about the meeting.
+     * @throws IllegalArgumentException if the list of contacts is
+     * empty, or any of the contacts does not exist
+     * @throws NullPointerException if any of the arguments is null
+     */
     public void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text){
         Calendar todaysDate = Calendar.getInstance();
         if(date.after(todaysDate)){
             throw new IllegalArgumentException();
         }
-        if(!contactSet.containsAll(contacts)){
+        if(!diary.getContactSet().containsAll(contacts)){
             throw new IllegalArgumentException();
         }
         if(contacts == null){
@@ -268,32 +266,32 @@ public class ContactManagerImpl implements ContactManager {
         int newID = (int)(Math.random()*10000);
         Meeting oldMeeting = new PastMeetingImpl(newID,date,contacts,text);
         //find the location to insert the meeting in the list - in date order
-        for(int i=0;i<meetingSchedule.size();i++){
-            Meeting checkMeeting = meetingSchedule.get(i);
+        for(int i=0;i<diary.getMeetingSchedule().size();i++){
+            Meeting checkMeeting = diary.getMeetingSchedule().get(i);
             Calendar checkDate = checkMeeting.getDate();
             if(checkDate.after(date)){
-                meetingSchedule.add(i,oldMeeting);
+                diary.getMeetingSchedule().add(i,oldMeeting);
                 return;
             }
         }
         //Append the specified meeting to the end of this list if the new meeting date is after all existing meetings in list
-        meetingSchedule.add(oldMeeting);
+        diary.getMeetingSchedule().add(oldMeeting);
         return;
     }
-/**
-* Add notes to a meeting.
-*
-* This method is used when a future meeting takes place, and is
-* then converted to a past meeting (with notes).
-*
-* It can be also used to add notes to a past meeting at a later date.
-*
-* @param id the ID of the meeting
-* @param text messages to be added about the meeting.
-* @throws IllegalArgumentException if the meeting does not exist
-* @throws IllegalStateException if the meeting is set for a date in the future
-* @throws NullPointerException if the notes are null
-*/
+    /**
+     * Add notes to a meeting.
+     *
+     * This method is used when a future meeting takes place, and is
+     * then converted to a past meeting (with notes).
+     *
+     * It can be also used to add notes to a past meeting at a later date.
+     *
+     * @param id the ID of the meeting
+     * @param text messages to be added about the meeting.
+     * @throws IllegalArgumentException if the meeting does not exist
+     * @throws IllegalStateException if the meeting is set for a date in the future
+     * @throws NullPointerException if the notes are null
+     */
     public void addMeetingNotes(int id, String text){
         Meeting focusMeeting = getMeeting(id);
         Calendar todaysDate = Calendar.getInstance();
@@ -314,13 +312,13 @@ public class ContactManagerImpl implements ContactManager {
             }
         }
     }
-/**
-* Create a new contact with the specified name and notes.
-*
-* @param name the name of the contact.
-* @param notes notes to be added about the contact.
-* @throws NullPointerException if the name or the notes are null
-*/
+    /**
+     * Create a new contact with the specified name and notes.
+     *
+     * @param name the name of the contact.
+     * @param notes notes to be added about the contact.
+     * @throws NullPointerException if the name or the notes are null
+     */
     public void addNewContact(String name, String notes){
         if(name == null){
             throw new NullPointerException();
@@ -330,23 +328,23 @@ public class ContactManagerImpl implements ContactManager {
             //Assign random contact ID number
             int contactId = (int) Math.abs(10000*Math.random());
             Contact newContact = new ContactImpl(contactId,name,notes);
-            contactSet.add(newContact);
-            contactList.add(newContact);
+            diary.getContactSet().add(newContact);
+            diary.getContactList().add(newContact);
         }
     }
-/**
-* Returns a list containing the contacts that correspond to the IDs.
-*
-* @param ids an arbitrary number of contact IDs
-* @return a list containing the contacts that correspond to the IDs.
-* @throws IllegalArgumentException if any of the IDs does not correspond to a real contact
-*/
+    /**
+     * Returns a list containing the contacts that correspond to the IDs.
+     *
+     * @param ids an arbitrary number of contact IDs
+     * @return a list containing the contacts that correspond to the IDs.
+     * @throws IllegalArgumentException if any of the IDs does not correspond to a real contact
+     */
     public Set<Contact> getContacts(int... ids){
         boolean validId;
 		Set<Contact> result = new HashSet<Contact>();
 		for(int id : ids){
 			validId = false;
-			for(Contact c : contactSet){
+			for(Contact c : diary.getContactSet()){
 				if(c.getId() == id){
 					result.add(c);
 					validId = true;
@@ -356,74 +354,82 @@ public class ContactManagerImpl implements ContactManager {
 				throw new IllegalArgumentException();
 			}
 		}
-	return result;
+        return result;
     }
-/**
-* Returns a list with the contacts whose name contains that string.
-*
-* @param name the string to search for
-* @return a list with the contacts whose name contains that string.
-* @throws NullPointerException if the parameter is null
-*/
+    /**
+     * Returns a list with the contacts whose name contains that string.
+     *
+     * @param name the string to search for
+     * @return a list with the contacts whose name contains that string.
+     * @throws NullPointerException if the parameter is null
+     */
     public Set<Contact> getContacts(String name){
         if(name == null){
             throw new NullPointerException();
         } else {
             Set<Contact> result = new HashSet<Contact>();
-            for(Contact c: contactSet){
-                if(c.getName().equals(name)){
+            for(Contact c: diary.getContactSet()){
+                try{
+                    if(c.getName().equals(name)){
                     result.add(c);
+                    }
+                } catch (NullPointerException ex){
+                    System.out.println("ERROR - contact set wasn't copied across correctly");
                 }
             }
             return result;
         }
     }
-/**
-* Save all data to disk.
-*
-* This method must be executed when the program is
-* closed and when/if the user requests it.
-*/
+    /**
+     * Save all data to disk.
+     *
+     * This method must be executed when the program is
+     * closed and when/if the user requests it.
+     */
     public void flush(){
-    XMLEncoder encodeContacts = null;
+        XMLEncoder encodeContacts = null;
+        ObjectOutputStream oos = null;
+        FileOutputStream fos = null;
         try {
-            encodeContacts = new XMLEncoder(
-                                new BufferedOutputStream(
-                                    new FileOutputStream(FILENAME)));
+            fos = new FileOutputStream(FILENAME);
+            oos = new ObjectOutputStream(fos);
+            encodeContacts = new XMLEncoder(oos);
         } catch (FileNotFoundException ex) {
             System.err.println("Encoding Contact Manager: " + ex);
+        } catch (IOException ex){
+            ex.printStackTrace();
         }
-        encodeContacts.writeObject(meetingSchedule);
+        encodeContacts.writeObject(diary);
         encodeContacts.close();
     }
-/**
-* Returns a list of all past meeting ID's
-*
-* @return a list of all past meeting ID's
-*/
+    /**
+     * Returns a list of all past meeting ID's
+     *
+     * @return a list of all past meeting ID's
+     */
     public List<Integer> getPastMeetingIdList(){
         List<Integer> result = new ArrayList<Integer>();
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Calendar todaysDate = Calendar.getInstance();
-        for(int i=0;i<meetingSchedule.size();i++){
-            if(meetingSchedule.get(i).getDate().before(todaysDate)){
-                result.add(meetingSchedule.get(i).getId());
+        for(int i=0;i<diary.getMeetingSchedule().size();i++){
+            if(diary.getMeetingSchedule().get(i).getDate().before(todaysDate)){
+                result.add(diary.getMeetingSchedule().get(i).getId());
             }
         }
         return result;
     }
-/**
-* Returns a list of all future meeting ID's
-*
-* @return a list of all future meeting ID's
-*/
+    /**
+     * Returns a list of all future meeting ID's
+     *
+     * @return a list of all future meeting ID's
+     */
     public List<Integer> getFutureMeetingIdList(){
         List<Integer> result = new ArrayList<Integer>();
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Calendar todaysDate = Calendar.getInstance();
-        for(int i=0;i<meetingSchedule.size();i++){
-            if(meetingSchedule.get(i).getDate().after(todaysDate)){
-                result.add(meetingSchedule.get(i).getId());
+        for(int i=0;i<diary.getMeetingSchedule().size();i++){
+            if(diary.getMeetingSchedule().get(i).getDate().after(todaysDate)){
+                result.add(diary.getMeetingSchedule().get(i).getId());
             }
         }
         return result;
@@ -436,9 +442,9 @@ public class ContactManagerImpl implements ContactManager {
      * @throws IllegalArgumentException if the ID does not correspond to a real contact
      */
     public Contact getSingleContact(int id){
-        for(int i=0;i<contactList.size();i++){
-            if(contactList.get(i).getId()==id){
-                return contactList.get(i);
+        for(int i=0;i<diary.getContactList().size();i++){
+            if(diary.getContactList().get(i).getId()==id){
+                return diary.getContactList().get(i);
             }
         }
         throw new IllegalArgumentException();
@@ -451,8 +457,8 @@ public class ContactManagerImpl implements ContactManager {
      * @throws IllegalArgumentException if the ID does not correspond to a real contact
      */
     public Contact getSingleContact(String name){
-        for(int i=0;i<contactList.size();i++){
-            Contact auxContact = contactList.get(i);
+        for(int i=0;i<diary.getContactList().size();i++){
+            Contact auxContact = diary.getContactList().get(i);
             if(auxContact.getName().equals(name)){
                 return auxContact;
             }
@@ -481,18 +487,18 @@ public class ContactManagerImpl implements ContactManager {
         Set<Contact> contacts = futMeet.getContacts();
         Meeting oldMeeting = new PastMeetingImpl(focusID,date,contacts,text);
         //remove futMeet from the contact manager meeting schedule
-        meetingSchedule.remove(futMeet);
+        diary.getMeetingSchedule().remove(futMeet);
         //find the location to insert the meeting in the list - in date order
-        for(int i=0;i<meetingSchedule.size();i++){
-            Meeting focusMeeting = meetingSchedule.get(i);
+        for(int i=0;i<diary.getMeetingSchedule().size();i++){
+            Meeting focusMeeting = diary.getMeetingSchedule().get(i);
             Calendar focusDate = focusMeeting.getDate();
             if(focusDate.after(date)){
-                meetingSchedule.add(i,oldMeeting);
+                diary.getMeetingSchedule().add(i,oldMeeting);
                 return focusID;
             }
         }
         //Append the specified meeting to the end of this list if the new meeting date is after all existing meetings in list
-        meetingSchedule.add(oldMeeting);
+        diary.getMeetingSchedule().add(oldMeeting);
         return focusID;
     }
     /**
@@ -500,18 +506,20 @@ public class ContactManagerImpl implements ContactManager {
      * @return the saved list of meetings
      * @throws FileNotFoundException if the correct file is not found
      */
-    public List<Meeting> decodeFile(){
+    public Schedule decodeFile(){
         //read ContactManager file and turn the read file back into an object
         XMLDecoder dCode = null;
         try {
-            dCode = new XMLDecoder(
-                    	new BufferedInputStream(
-                        	new FileInputStream(FILENAME)));
+            FileInputStream fis = new FileInputStream(FILENAME);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            dCode = new XMLDecoder(ois);
         } catch (FileNotFoundException ex) {
             System.out.println("ERROR - file not found!");
             ex.printStackTrace();
+        } catch (IOException ex){
+            ex.printStackTrace();
         }
-        List<Meeting> downloadedSchedule = (List<Meeting>) dCode.readObject();
+        Schedule downloadedSchedule = (Schedule) dCode.readObject();            //***changed***
         dCode.close();
         return downloadedSchedule;
     }

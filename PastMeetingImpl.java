@@ -9,6 +9,10 @@ import java.io.Serializable;
 public class PastMeetingImpl extends MeetingImpl implements PastMeeting,Serializable {
     private String meetingMinutes;
 
+    public PastMeetingImpl(){
+        super();
+    }
+
     public PastMeetingImpl(int meetingId,Calendar scheduledDate,Set<Contact> participants,String meetingMinutes){
         super(meetingId,scheduledDate,participants);
         this.meetingMinutes = meetingMinutes;

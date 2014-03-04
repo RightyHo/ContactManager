@@ -38,7 +38,7 @@ public class ContactManagerTest {
         strExpected = "";
 
 		try{
-        diary = new ContactManagerImpl();
+        diary = new ContactManagerImplMach2();
         pastMeetIds = new ArrayList<Integer>();
         futMeetIds = new ArrayList<Integer>();
         contactsGroup = new HashSet<Contact>();
@@ -47,7 +47,6 @@ public class ContactManagerTest {
         setUpContacts();
         setUpPastMeetings();
         setUpFutureMeetings();
-//		diary.flush();
         contactsGroup.clear();
         aux.clear();
 		} catch (Exception ex){
@@ -67,7 +66,7 @@ public class ContactManagerTest {
         //get list of all Philippa Ho's future meetings there should be 2
         List<Meeting> listOutput = diary.getFutureMeetingList(searchContact);
         if(listOutput.isEmpty()){
-            System.out.println("ERROR - Can't find any future meetings with Philippa Ho in attendance");
+            System.out.println("ERROR: getFutureMeetingList() - Can't find any future meetings with Philippa Ho in attendance");
         } else if(listOutput.size() == 1){
             //test that the method returns Philippa Ho's first meeting on 02/09/15
             for(int i=0;i<futMeetIds.size();i++){
@@ -118,7 +117,7 @@ public class ContactManagerTest {
         //get list of all Richard Barkers past meetings there should be 2
         List<PastMeeting> listOutput = diary.getPastMeetingList(searchContact);
         if(listOutput.isEmpty()){
-            System.out.println("ERROR - Can't find any past meetings with Richard Barker in attendance");
+            System.out.println("ERROR: getPastMeetingList() - Can't find any past meetings with Richard Barker in attendance");
         } else if(listOutput.size() == 1){
             //test that the method returns Richard Barkers first meeting on 14/07/11
             for(int i=0;i<pastMeetIds.size();i++){
@@ -170,13 +169,13 @@ public class ContactManagerTest {
 //            }
             diary.addMeetingNotes(pastMeetIds.get(0),"Better late than never...meeting was successful!");
         } catch (IllegalArgumentException ex){
-            System.out.println("ERROR - the meeting does not exist");
+            System.out.println("ERROR: addMeetingNotes() - the meeting does not exist");
 //  	    ex.printStackTrace();
         } catch (IllegalStateException ex){
-            System.out.println("ERROR - the meeting is set for a date in the future");
+            System.out.println("ERROR: addMeetingNotes() - the meeting is set for a date in the future");
 //  	    ex.printStackTrace();
         } catch (NullPointerException ex){
-            System.out.println("ERROR - the notes you tried to add are null!");
+            System.out.println("ERROR: addMeetingNotes() - the notes you tried to add are null!");
 //  	    ex.printStackTrace();
         }
         strOutput = diary.getPastMeeting(pastMeetIds.get(0)).getNotes();
@@ -186,13 +185,13 @@ public class ContactManagerTest {
         try{
             diary.addMeetingNotes(futMeetIds.get(0),"This shouldn't work...");
         } catch (IllegalArgumentException ex){
-            System.out.println("ERROR - the meeting does not exist");
+            System.out.println("ERROR: addMeetingNotes() - the meeting does not exist");
 //  	    ex.printStackTrace();
         } catch (IllegalStateException ex){
             System.out.println("TEST PASSED: ERROR - the meeting is set for a date in the future");
 //  	    ex.printStackTrace();
         } catch (NullPointerException ex){
-            System.out.println("ERROR - the notes you tried to add are null!");
+            System.out.println("ERROR: addMeetingNotes() - the notes you tried to add are null!");
 //  	    ex.printStackTrace();
         }
         //try adding notes to a meeting ID that doesn't exist
@@ -202,20 +201,20 @@ public class ContactManagerTest {
             System.out.println("TEST PASSED: ERROR - the meeting does not exist");
 //  	    ex.printStackTrace();
         } catch (IllegalStateException ex){
-            System.out.println("ERROR - the meeting is set for a date in the future");
+            System.out.println("ERROR: addMeetingNotes() - the meeting is set for a date in the future");
 //  	    ex.printStackTrace();
         } catch (NullPointerException ex){
-            System.out.println("ERROR - the notes you tried to add are null!");
+            System.out.println("ERROR: addMeetingNotes() - the notes you tried to add are null!");
 //  	    ex.printStackTrace();
         }
         //try adding null notes to a meeting
         try{
             diary.addMeetingNotes(pastMeetIds.get(0),null);
         } catch (IllegalArgumentException ex){
-            System.out.println("ERROR - the meeting does not exist");
+            System.out.println("ERROR: addMeetingNotes() - the meeting does not exist");
 //  	    ex.printStackTrace();
         } catch (IllegalStateException ex){
-            System.out.println("ERROR - the meeting is set for a date in the future");
+            System.out.println("ERROR: addMeetingNotes() - the meeting is set for a date in the future");
 //  	    ex.printStackTrace();
         } catch (NullPointerException ex){
             System.out.println("TEST PASSED: ERROR - the notes you tried to add are null!");
@@ -238,7 +237,8 @@ public class ContactManagerTest {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 		output = diary.addFutureMeeting(contactsGroup,meetingDate);
         diary.flush();
-        List<Meeting> outputSchedule = diary.decodeFile();
+        Schedule outputSchedule = diary.decodeFile();
+        System.out.println("*****decoded file:  " + String.valueOf(outputSchedule.getMeetingSchedule().get(0).getId())); //***changed***
     }
     @Test
 	    public void testsGetContacts2(){
@@ -247,7 +247,7 @@ public class ContactManagerTest {
 	        try {
 	            setOutput = diary.getContacts(pastMeetIds.get(0),futMeetIds.get(0));
 	        } catch (IllegalArgumentException ex){
-	            System.out.println("ERROR - one of the ID's you entered was not valid");
+	            System.out.println("ERROR: getContacts2 - one of the ID's you entered was not valid");
 	        }
 	        //test that the method returns a non-empty set
 	        assertFalse(setOutput.isEmpty());
@@ -370,7 +370,7 @@ public class ContactManagerTest {
         meetingDate.set(2015,8,02);
         List<Meeting> listOutput = diary.getFutureMeetingList(meetingDate);
         if(listOutput.isEmpty()){
-            System.out.println("ERROR - Can't find any future meetings scheduled for 2nd September 2015");
+            System.out.println("ERROR: getFutureMeetingList2() - Can't find any future meetings scheduled for 2nd September 2015");
         } else if(listOutput.size() == 1){
             //test that the method returns a meeting scheduled to take place on 02/09/15
             for(int i=0;i<futMeetIds.size();i++){
@@ -437,7 +437,7 @@ public class ContactManagerTest {
                     strOutput = s;
                 }
             } catch (NullPointerException ex){
-                System.out.println("ERROR - somethings gone wrong, we've got a null pointer");
+                System.out.println("ERROR: addNewPastMeeting() - somethings gone wrong, we've got a null pointer");
             }
         }
         assertEquals(strExpected,strOutput);
@@ -493,7 +493,7 @@ public class ContactManagerTest {
 	        try{
 	            diary.addNewContact("Andrew Ho","Thats me!");
 	        } catch (NullPointerException ex){
-	            System.out.println("ERROR - one of the name or notes fields are null!");
+	            System.out.println("ERROR: addNewContact() - one of the name or notes fields are null!");
 	        }
 	        Contact findContact = diary.getSingleContact("Andrew Ho");
 	        strExpected = "Andrew Ho";
@@ -518,7 +518,7 @@ public class ContactManagerTest {
 	        try {
 	            setOutput = diary.getContacts("Travis Wallach");
 	        } catch (NullPointerException ex){
-	            System.out.println("ERROR - the name parameter was null");
+	            System.out.println("ERROR: getContacts() - the name parameter was null");
 	        }
 	        //test that the method returns a non-empty set
 	        assertFalse(setOutput.isEmpty());

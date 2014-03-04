@@ -13,6 +13,8 @@ public class ContactImpl implements Contact, Serializable {
 /**
 * Constructor for ContactImpl class
 */
+    public ContactImpl(){}
+    
 	public ContactImpl(int contactId,String contactName,String contactNotes){
 		this.contactId = contactId;
 		this.contactName = contactName;

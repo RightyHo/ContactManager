@@ -174,7 +174,7 @@ int convertToPastMeeting(Meeting futMeet,String text);
 * @return the saved list of meetings
 * @throws FileNotFoundException if the correct file is not found
 */
-List<Meeting> decodeFile();
+Schedule decodeFile();
 }
 
 

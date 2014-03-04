@@ -15,6 +15,8 @@ public class MeetingImpl implements Meeting, Serializable {
 /**
 * Constructor for MeetingImpl class
 */
+    public MeetingImpl(){}
+    
 	public MeetingImpl(int meetingId,Calendar scheduledDate,Set<Contact> participants){
 		this.meetingId = meetingId;
 		this.scheduledDate = scheduledDate;
