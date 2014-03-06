@@ -170,11 +170,11 @@ public Contact getSingleContact(String name);
 */
 int convertToPastMeeting(Meeting futMeet,String text);
 /**
-* Decodes and reads the saved meeting schedule from the file saved on disk
-* @return the saved list of meetings
+* Reads the saved meeting schedule from the file saved on disk
+* @return the saved list of meetings, contact set & contact list
 * @throws FileNotFoundException if the correct file is not found
 */
-Schedule decodeFile();
+public void readFile();
 }
 
 
